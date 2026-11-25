@@ -33,6 +33,7 @@ services:
             - 9180:9180
         environment:
             - CRIOL_SERVER_URL=https://navidrome.exemplo.com # opcional
+            - CRIOL_SERVER_FALLBACK_URL=http://100.64.0.1:4533 # opcional: outro endereço do mesmo servidor
             - CRIOL_SERVER_TYPE=navidrome # navidrome, subsonic ou jellyfin
             - CRIOL_SERVER_NAME=Minha música # opcional
             - CRIOL_SERVER_LOCK=false # true: só deixa usar esse servidor
@@ -56,6 +57,8 @@ permissão para ler a pasta).
 - **Perfil**: minutos ouvidos, sequência de dias, DNA musical, relógio musical, tops, conquistas
   e **resumo mensal**.
 - **Aparência**: 16 temas e cor de destaque.
+- **Servidor com dois endereços** (desktop e web): um principal e um alternativo, por exemplo o IP
+  da rede local e o do Tailscale. Se um não responde, o Criol usa o outro sozinho.
 
 O histórico de escuta exportado de uma versão pode ser importado na outra.
 

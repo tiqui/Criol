@@ -19,6 +19,8 @@ describe('texto', () => {
     it('separa gêneros', () => {
         expect(splitGenres('Rock, Pop;MPB')).toEqual(['Rock', 'Pop', 'MPB']);
         expect(splitGenres(['Jazz', 'jazz'])).toEqual(['Jazz']);
+        // Tag real: lista com o separador grudado no segundo item.
+        expect(splitGenres(['Rap', ', Rap/Hip Hop'])).toEqual(['Rap', 'Rap/Hip Hop']);
     });
 
     it('gera ids estáveis', () => {

@@ -158,6 +158,11 @@
     color: rgb(255 255 255 / 80%);
 }
 
+/* Ligado (letra, fila, Auto DJ): na cor de destaque, como na barra. */
+.tools button[aria-pressed='true'] {
+    color: var(--primary);
+}
+
 .volume {
     width: 220px;
 }

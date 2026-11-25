@@ -8,6 +8,7 @@ services:
         environment:
             # Opcional: deixa um servidor já preenchido no primeiro acesso.
             - CRIOL_SERVER_URL=
+            - CRIOL_SERVER_FALLBACK_URL= # opcional: outro endereço do mesmo servidor (ex.: Tailscale)
             - CRIOL_SERVER_TYPE=navidrome # navidrome, subsonic ou jellyfin
             - CRIOL_SERVER_NAME=
             - CRIOL_SERVER_LOCK=false # true: só deixa usar esse servidor

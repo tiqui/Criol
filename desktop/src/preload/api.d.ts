@@ -23,4 +23,6 @@ declare global {
         criolDesktop?: CriolDesktopApi;
     }
     const __CRIOL_WEB__: boolean;
+    /** Versão do app (do package.json), definida no build. */
+    const __CRIOL_VERSION__: string;
 }

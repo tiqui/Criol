@@ -17,6 +17,7 @@ import {
     seek,
     setFullscreen,
     setVolume,
+    toggleAutoDj,
     toggleMute,
     togglePlay,
     toggleShuffle,
@@ -94,6 +95,13 @@ export function Volume() {
     );
 }
 
+/** Botão do Auto DJ (barra e player em tela cheia). */
+export function AutoDjButton({ size = 34 }: { size?: number }) {
+    const { t } = useTranslation();
+    const enabled = useSettings((s) => s.autoDjEnabled);
+    return <IconButton active={enabled} icon="wand" label={enabled ? t('player.autoDjDisable') : t('player.autoDjEnable')} onClick={toggleAutoDj} size={size} />;
+}
+
 export function PlayerBar() {
     const { t } = useTranslation();
     const song = useCurrentSong();
@@ -136,6 +144,7 @@ export function PlayerBar() {
                 <ProgressBar />
             </div>
             <div className={styles.tools}>
+                <AutoDjButton />
                 <IconButton active={panel === 'lyrics'} disabled={!song} icon="lyrics" label={t('player.lyrics')} onClick={() => togglePanel('lyrics')} size={34} />
                 <IconButton active={panel === 'queue'} disabled={!song} icon="queue" label={t('player.queue')} onClick={() => togglePanel('queue')} size={34} />
                 <Volume />

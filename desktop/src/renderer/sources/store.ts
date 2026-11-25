@@ -108,6 +108,8 @@ export const migrateOldSources = () => {
 /** Servidor pré-configurado na versão web (variáveis do Docker). */
 export interface WebConfig {
     serverUrl?: string;
+    /** Endereço alternativo (ex.: Tailscale), usado quando o principal não responde. */
+    serverFallbackUrl?: string;
     serverType?: string;
     serverName?: string;
     serverLock?: boolean;
@@ -117,6 +119,7 @@ export const webConfig = (): WebConfig => {
     const raw = (window as unknown as { CRIOL_CONFIG?: Record<string, unknown> }).CRIOL_CONFIG || {};
     const text = (key: string) => (typeof raw[key] === 'string' && (raw[key] as string).trim() ? (raw[key] as string).trim() : undefined);
     return {
+        serverFallbackUrl: text('serverFallbackUrl'),
         serverLock: raw.serverLock === true || raw.serverLock === 'true',
         serverName: text('serverName'),
         serverType: text('serverType'),

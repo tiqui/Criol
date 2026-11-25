@@ -240,9 +240,19 @@ export class MixGenerator {
         return genres.slice(0, 3).map((g) => this.genreMix(g, personalized));
     }
 
+    private covers?: Set<string>;
+    /** Capas que existem na biblioteca atual. */
+    private coverIds() {
+        return (this.covers ??= new Set(this.library.songs.map((s) => s.coverId).filter((id): id is string => Boolean(id))));
+    }
+
     isFresh(mix: Mix) {
         const daypart = mix.kind === 'daylist' ? getDaypart(this.now) : mix.daypart;
         if (mix.periodKey !== mixPeriodKey(mix.kind, this.now, daypart)) return false;
+        // A biblioteca mudou desde que a mix foi feita (gênero sumiu, músicas saíram): refaz.
+        if (mix.kind === 'genre' && !this.library.genres.some((g) => g.key === normalizeText(mix.genre || ''))) return false;
+        if (mix.songIds.length && mix.songIds.filter((id) => this.library.songsById.has(id)).length < mix.songIds.length * 0.8) return false;
+        if (mix.coverIds.some((id) => !this.coverIds().has(id))) return false;
         // Mix que saiu vazia tenta de novo depois de uma hora (o histórico pode ter crescido).
         return mix.songIds.length > 0 || this.nowMs - mix.generatedAt < 60 * 60 * 1000;
     }

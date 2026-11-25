@@ -5,6 +5,7 @@ import { activateSource, useLibrary } from '@/library/store';
 import { attachEngine, next, previous, resetForSource, restoreQueue, setVolume, skipBy, startQueuePersistence, togglePlay, usePlayer } from '@/player/store';
 import { startTracking } from '@/player/tracker';
 import { settings, useSettings } from '@/settings/store';
+import { ensureBase, selectBase } from '@/sources/endpoint';
 import { getActiveConfig, migrateOldSources, useSources } from '@/sources/store';
 import { applyTheme } from '@/styles/themes';
 
@@ -46,6 +47,18 @@ export function bootstrap() {
     };
     activate();
     useSources.subscribe(activate);
+
+    // Servidor com dois endereços (ex.: rede local e Tailscale): testa de novo quando a rede muda
+    // e de tempos em tempos, para voltar ao principal quando ele estiver de volta.
+    const recheckServer = (force: boolean) => {
+        const config = getActiveConfig();
+        if (!config || config.type === 'local' || !config.fallbackUrl) return;
+        void (force ? selectBase(config) : ensureBase(config));
+    };
+    recheckServer(true);
+    window.addEventListener('online', () => recheckServer(true));
+    (navigator as Navigator & { connection?: EventTarget }).connection?.addEventListener('change', () => recheckServer(true));
+    setInterval(() => recheckServer(false), 2 * 60 * 1000);
 
     const refreshMixes = (force = false) => {
         const { library, loaded, sourceId, user } = useLibrary.getState();

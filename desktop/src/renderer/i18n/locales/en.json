@@ -256,6 +256,10 @@
         "settings": "Settings"
     },
     "player": {
+        "autoDjDisable": "Turn off Auto DJ",
+        "autoDjEnable": "Turn on Auto DJ",
+        "autoDjOff": "Auto DJ off",
+        "autoDjOn": "Auto DJ on: the queue keeps going with similar songs",
         "addedNext_one": "Playing next",
         "addedNext_other": "{{count}} songs playing next",
         "addedToQueue_one": "Added to queue",
@@ -488,7 +492,10 @@
             "songs_zero": "No songs",
             "syncedAt": "updated {{date}}",
             "title": "Servers and folders",
-            "use": "Use"
+            "use": "Use",
+            "addresses": "Server addresses",
+            "hasFallback": "Fallback: {{url}}",
+            "usingFallback": "Using the fallback address (the main one didn't respond)"
         }
     },
     "sources": {
@@ -521,7 +528,16 @@
         },
         "url": "Server address",
         "urlRequired": "Enter the server address.",
-        "username": "Username"
+        "username": "Username",
+        "addressesSaved": "Addresses saved",
+        "fallbackHint": "If the main address doesn't respond, Criol switches to the fallback on its own and goes back to the main one when it responds again. E.g. your local network IP and your Tailscale IP.",
+        "fallbackUrl": "Fallback address (optional)",
+        "reach": {
+            "fail": "No response",
+            "ok": "Responding",
+            "testing": "Testing…"
+        },
+        "test": "Test"
     },
     "welcome": {
         "text": "Choose where your music comes from. You can add more sources later in Settings.",

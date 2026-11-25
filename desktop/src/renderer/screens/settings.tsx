@@ -16,11 +16,12 @@ import { randomId } from '@/lib/md5';
 import { routes } from '@/lib/nav';
 import { isWebLyricsFolder, lyricsFolderLabel, refreshLyricsFolders } from '@/lyrics/service';
 import { type Language, useSettings } from '@/settings/store';
+import { forgetBase, useEndpoints } from '@/sources/endpoint';
 import { getSource, useSources } from '@/sources/store';
 import { pickWebFolder, supportsFolderAccess } from '@/sources/local-web';
 import { ACCENT_PRESETS, PALETTES } from '@/styles/themes';
 
-import { AddSourceForm } from './add-source';
+import { AddSourceForm, ServerAddressForm } from './add-source';
 import styles from './settings.module.css';
 
 type SectionId = 'about' | 'appearance' | 'history' | 'lyrics' | 'playback' | 'sources';
@@ -58,6 +59,7 @@ function SourcesSection() {
     const syncing = useLibrary((s) => s.syncing);
     const syncedAt = useLibrary((s) => s.syncedAt);
     const songs = useLibrary((s) => s.library.songs.length);
+    const bases = useEndpoints((s) => s.bases);
 
     return (
         <>
@@ -70,9 +72,14 @@ function SourcesSection() {
                         <div className={styles.rowText}>
                             <strong className="truncate">{s.name}</strong>
                             <span className="truncate">
-                                {t(`sources.types.${s.type}`)} · {s.path || s.folderName || s.url}
+                                {t(`sources.types.${s.type}`)} · {s.path || s.folderName || (s.fallbackUrl && bases[s.id] === s.fallbackUrl ? s.fallbackUrl : s.url)}
                                 {s.username ? ` · ${s.username}` : ''}
                             </span>
+                            {s.fallbackUrl && (
+                                <span className="truncate">
+                                    {bases[s.id] === s.fallbackUrl ? t('settings.sources.usingFallback') : t('settings.sources.hasFallback', { url: s.fallbackUrl })}
+                                </span>
+                            )}
                             {s.id === activeId && (
                                 <span>
                                     {t('settings.sources.songs', { count: songs, formatted: songs.toLocaleString() })}
@@ -90,6 +97,14 @@ function SourcesSection() {
                                     {t('settings.sources.use')}
                                 </Button>
                             )}
+                            {s.type !== 'local' && (
+                                <IconButton
+                                    icon="server"
+                                    label={t('settings.sources.addresses')}
+                                    onClick={() => openModal({ render: (close) => <ServerAddressForm config={s} onDone={close} />, title: t('settings.sources.addresses') })}
+                                    size={34}
+                                />
+                            )}
                             <IconButton
                                 icon="trash"
                                 label={t('settings.sources.remove')}
@@ -97,6 +112,7 @@ function SourcesSection() {
                                     if (!(await confirm(t('settings.sources.remove'), t('settings.sources.removeConfirm', { name: s.name }), t('common.remove'), true))) return;
                                     await getSource(s).dispose?.();
                                     await forgetSourceData(s.id);
+                                    forgetBase(s.id);
                                     remove(s.id);
                                 }}
                                 size={34}
@@ -346,7 +362,7 @@ function HistorySection() {
 
 function AboutSection() {
     const { t } = useTranslation();
-    const [version, setVersion] = useState('2.0.0');
+    const [version, setVersion] = useState(__CRIOL_VERSION__);
     useEffect(() => {
         void window.criolDesktop?.appInfo().then((info) => setVersion(info.version));
     }, []);

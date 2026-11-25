@@ -3,6 +3,7 @@ import type { Song } from '@shared/types';
 
 import { md5, randomId } from '@/lib/md5';
 
+import { currentBase, ensureBase, failover } from './endpoint';
 import {
     type FavoriteKind,
     type MusicSource,
@@ -47,7 +48,7 @@ export const buildUrl = (config: SourceConfig, method: string, extra: Record<str
         if (Array.isArray(value)) value.forEach((v) => params.append(key, v));
         else params.set(key, String(value));
     }
-    return `${config.url}/rest/${method}?${params.toString()}`;
+    return `${currentBase(config)}/rest/${method}?${params.toString()}`;
 };
 
 async function call(config: SourceConfig, method: string, extra: Record<string, number | string | string[] | undefined> = {}): Promise<Json> {
@@ -55,7 +56,13 @@ async function call(config: SourceConfig, method: string, extra: Record<string, 
     try {
         response = await fetch(buildUrl(config, method, extra));
     } catch {
-        throw new SourceError('Não foi possível conectar ao servidor.', 'network');
+        // Sem resposta: se o outro endereço do servidor estiver no ar, tenta por ele.
+        if (!(await failover(config))) throw new SourceError('Não foi possível conectar ao servidor.', 'network');
+        try {
+            response = await fetch(buildUrl(config, method, extra));
+        } catch {
+            throw new SourceError('Não foi possível conectar ao servidor.', 'network');
+        }
     }
     if (!response.ok) throw new SourceError(`O servidor respondeu ${response.status}.`, response.status === 401 ? 'auth' : 'server');
     const body = (await response.json().catch(() => null)) as Json | null;
@@ -254,6 +261,7 @@ export function createSubsonicSource(config: SourceConfig): MusicSource {
         },
 
         async streamUrl(song) {
+            await ensureBase(config);
             return buildUrl(config, 'stream', { id: song.id });
         },
 

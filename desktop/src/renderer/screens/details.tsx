@@ -7,7 +7,7 @@ import type { Song } from '@shared/types';
 import { openAlbumMenu, openArtistMenu, openPlaylistMenu, songsMenuItems } from '@/components/actions';
 import { Card, Carousel } from '@/components/cards';
 import { openMenu } from '@/components/menu';
-import { MixCover } from '@/components/mix-cover';
+import { MixCover, mixColor } from '@/components/mix-cover';
 import { Hero, Page, Section } from '@/components/page';
 import { SongList } from '@/components/song-list';
 import { toast } from '@/components/toast';
@@ -317,6 +317,7 @@ function MixContent() {
     return (
         <Page flush>
             <Hero
+                color={mixColor(mix)}
                 actions={
                     <>
                         <BigPlay songs={songs} />

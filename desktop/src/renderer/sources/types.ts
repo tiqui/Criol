@@ -7,6 +7,8 @@ export interface SourceConfig {
     name: string;
     /** Servidores: endereço base (sem "/rest"). */
     url?: string;
+    /** Servidores: endereço alternativo, usado quando o principal não responde (ex.: Tailscale). */
+    fallbackUrl?: string;
     username?: string;
     /** Subsonic: token = md5(senha + salt). */
     subsonic?: { salt: string; token: string };

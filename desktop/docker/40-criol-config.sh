@@ -4,6 +4,7 @@
 set -eu
 
 url="${CRIOL_SERVER_URL:-${CRIFY_SERVER_URL:-${SERVER_URL:-}}}"
+fallback="${CRIOL_SERVER_FALLBACK_URL:-}"
 type="${CRIOL_SERVER_TYPE:-${CRIFY_SERVER_TYPE:-${SERVER_TYPE:-}}}"
 name="${CRIOL_SERVER_NAME:-${CRIFY_SERVER_NAME:-${SERVER_NAME:-}}}"
 lock="${CRIOL_SERVER_LOCK:-${CRIFY_SERVER_LOCK:-${SERVER_LOCK:-false}}}"
@@ -23,6 +24,7 @@ if [ "$lock" = "true" ]; then lock_value=true; else lock_value=false; fi
 cat > /usr/share/nginx/html/config.js <<CONFIG
 window.CRIOL_CONFIG = {
     serverUrl: "$(json_escape "$url")",
+    serverFallbackUrl: "$(json_escape "$fallback")",
     serverType: "$type",
     serverName: "$(json_escape "$name")",
     serverLock: $lock_value,

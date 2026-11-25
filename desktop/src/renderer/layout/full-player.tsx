@@ -16,7 +16,7 @@ import { useSettings } from '@/settings/store';
 
 import styles from './full-player.module.css';
 import { LyricsView } from './lyrics-view';
-import { ProgressBar, Transport, Volume } from './player-bar';
+import { AutoDjButton, ProgressBar, Transport, Volume } from './player-bar';
 import { QueueView } from './queue-view';
 
 type Tab = 'lyrics' | 'none' | 'queue';
@@ -141,6 +141,7 @@ export function FullPlayer() {
                         <IconButton icon="rewind" label={t('player.skipBack', { seconds: skipBack })} onClick={() => skipBy(-skipBack)} size={40} />
                         <IconButton active={tab === 'lyrics'} icon="lyrics" label={t('player.lyrics')} onClick={() => setTab(tab === 'lyrics' ? 'none' : 'lyrics')} size={40} />
                         <IconButton active={tab === 'queue'} icon="queue" label={t('player.queue')} onClick={() => setTab(tab === 'queue' ? 'none' : 'queue')} size={40} />
+                        <AutoDjButton size={40} />
                         <IconButton icon="sliders" label={t('player.options')} onClick={(e) => openPlayerOptions(e.currentTarget)} size={40} />
                         <IconButton icon="forward" label={t('player.skipForward', { seconds: skipForward })} onClick={() => skipBy(skipForward)} size={40} />
                     </div>

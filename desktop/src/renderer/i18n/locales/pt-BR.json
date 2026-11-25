@@ -258,6 +258,10 @@
         "settings": "Configurações"
     },
     "player": {
+        "autoDjDisable": "Desligar Auto DJ",
+        "autoDjEnable": "Ligar Auto DJ",
+        "autoDjOff": "Auto DJ desligado",
+        "autoDjOn": "Auto DJ ligado: a fila continua com músicas parecidas",
         "addedNext_one": "Vai tocar a seguir",
         "addedNext_other": "{{count}} músicas vão tocar a seguir",
         "addedToQueue_one": "Adicionada à fila",
@@ -493,7 +497,10 @@
             "songs_zero": "Nenhuma música",
             "syncedAt": "atualizado em {{date}}",
             "title": "Servidores e pastas",
-            "use": "Usar"
+            "use": "Usar",
+            "addresses": "Endereços do servidor",
+            "hasFallback": "Alternativo: {{url}}",
+            "usingFallback": "Usando o endereço alternativo (o principal não respondeu)"
         }
     },
     "sources": {
@@ -526,7 +533,16 @@
         },
         "url": "Endereço do servidor",
         "urlRequired": "Informe o endereço do servidor.",
-        "username": "Usuário"
+        "username": "Usuário",
+        "addressesSaved": "Endereços salvos",
+        "fallbackHint": "Se o endereço principal não responder, o Criol usa o alternativo sozinho e volta ao principal quando ele responder de novo. Ex.: o IP da rede local e o do Tailscale.",
+        "fallbackUrl": "Endereço alternativo (opcional)",
+        "reach": {
+            "fail": "Não respondeu",
+            "ok": "Respondendo",
+            "testing": "Testando…"
+        },
+        "test": "Testar"
     },
     "welcome": {
         "text": "Escolha de onde vêm as suas músicas. Dá para adicionar mais fontes depois em Configurações.",

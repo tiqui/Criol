@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import type { Song } from '@shared/types';
 
 import { randomId } from '@/lib/md5';
+import { ensureBase } from '@/sources/endpoint';
 import { getSource } from '@/sources/store';
 import type { FavoriteKind, Playlist, SourceConfig, SyncProgress, SyncResult } from '@/sources/types';
 import { toast } from '@/components/toast';
@@ -153,6 +154,8 @@ export async function syncLibrary() {
     const source = getSource(config);
     useLibrary.setState({ error: null, progress: null, syncing: true });
     try {
+        // Servidor com dois endereços: escolhe o que está respondendo antes de baixar tudo.
+        if (config.type !== 'local') await ensureBase(config);
         const result: SyncResult = await source.sync((progress) => {
             if (token === loadToken) useLibrary.setState({ progress });
         });

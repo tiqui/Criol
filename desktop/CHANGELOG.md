@@ -2,6 +2,30 @@
 
 As mudanças de cada versão do Criol para desktop e web.
 
+## [2.1.0] - 2026-11-25
+
+### Adicionado
+
+- Endereço alternativo do servidor (Navidrome/Subsonic e Jellyfin): quando o principal não
+  responde, o Criol passa sozinho para o alternativo e volta ao principal quando ele responde de
+  novo. Dá para editar os dois em Configurações → Fontes. No Docker:
+  `CRIOL_SERVER_FALLBACK_URL`.
+- Botão do Auto DJ na barra do player e no player em tela cheia.
+
+### Mudado
+
+- Capas do "Feito para você" iguais às do Criol Android (orbe da daylist, ícones por período,
+  mosaico nas mixes de gênero).
+
+### Corrigido
+
+- Capa da música às vezes não aparecia na barra do player.
+- Botões ligados (letra, fila) não se destacavam no player em tela cheia.
+- Pasta local: álbum dividido em dois quando só algumas faixas tinham "artista do álbum".
+- Pasta local: gêneros como ", Rap/Hip Hop" quando a tag trazia o separador grudado.
+- Mixes antigas continuavam com gêneros ou músicas que saíram da biblioteca.
+- Rádio: o mesmo artista podia tocar duas vezes seguidas no fim da fila.
+
 ## [2.0.0] - 2026-11-25
 
 Primeira versão do Criol para desktop e web, com a mesma biblioteca, o mesmo perfil e as mesmas

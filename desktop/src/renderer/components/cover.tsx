@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { memo, useEffect, useState } from 'react';
 
 import { getPlaceholderGradient } from '@/lib/placeholder';
+import { useCurrentBase } from '@/sources/endpoint';
 import { useActiveConfig, getSource } from '@/sources/store';
 import { resolveIdbArt } from '@/sources/local-web';
 
@@ -25,6 +26,8 @@ const SIZES = { lg: 600, md: 300, sm: 96 };
 /** Endereço da capa na fonte ativa. */
 export const useCoverUrl = (coverId: null | string | undefined, size: 'lg' | 'md' | 'sm' = 'md') => {
     const config = useActiveConfig();
+    // Muda quando o app troca entre o endereço principal e o alternativo do servidor.
+    const base = useCurrentBase(config);
     const [url, setUrl] = useState<null | string>(null);
     useEffect(() => {
         if (!coverId || !config) {
@@ -40,7 +43,7 @@ export const useCoverUrl = (coverId: null | string | undefined, size: 'lg' | 'md
             };
         }
         setUrl(raw);
-    }, [config, coverId, size]);
+    }, [base, config, coverId, size]);
     return url;
 };
 
@@ -48,10 +51,11 @@ export const useCoverUrl = (coverId: null | string | undefined, size: 'lg' | 'md
 export const Cover = memo(function Cover({ alt = '', className, coverId, icon = 'music', round, seed, size = 'md' }: CoverProps) {
     const url = useCoverUrl(coverId, size);
     const [failed, setFailed] = useState<null | string>(null);
-    const [loaded, setLoaded] = useState(false);
+    // Guarda qual endereço terminou de carregar, e não um "carregou" solto: com a imagem em cache
+    // o onLoad pode chegar antes de um efeito que zerasse o estado, e a capa ficava invisível.
+    const [loadedUrl, setLoadedUrl] = useState<null | string>(null);
     const showImage = url && failed !== url;
-
-    useEffect(() => setLoaded(false), [url]);
+    const loaded = loadedUrl === url;
 
     return (
         <div className={clsx(styles.cover, round && styles.round, className)} style={{ background: getPlaceholderGradient(seed) }}>
@@ -66,9 +70,14 @@ export const Cover = memo(function Cover({ alt = '', className, coverId, icon = 
                     className={clsx(styles.img, loaded && styles.loaded)}
                     decoding="async"
                     draggable={false}
+                    key={url}
                     loading="lazy"
                     onError={() => setFailed(url)}
-                    onLoad={() => setLoaded(true)}
+                    onLoad={() => setLoadedUrl(url)}
+                    ref={(img) => {
+                        // Imagem que já veio pronta do cache antes do React ouvir o load.
+                        if (img?.complete && img.naturalWidth > 0 && loadedUrl !== url) setLoadedUrl(url);
+                    }}
                     src={url}
                 />
             )}

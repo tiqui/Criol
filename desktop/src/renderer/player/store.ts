@@ -8,7 +8,8 @@ import { randomId } from '@/lib/md5';
 import { currentLibrary, libraryState } from '@/library/store';
 import { useListening } from '@/insights/listening-db';
 import { settings } from '@/settings/store';
-import { getActiveSource } from '@/sources/store';
+import { failover } from '@/sources/endpoint';
+import { getActiveConfig, getActiveSource } from '@/sources/store';
 
 import { pickAlbums, pickSongs, shuffled } from './auto-dj';
 import { engine } from './engine';
@@ -123,7 +124,7 @@ async function loadCurrent(autoplay: boolean, startMs = 0) {
         if (loadedKey !== item.key) return;
         await engine.load(item.key, url, autoplay, startMs);
     } catch (error) {
-        if (loadedKey === item.key) handleError(error instanceof Error ? error.message : 'load');
+        if (loadedKey === item.key) void handleError(error instanceof Error ? error.message : 'load');
     }
     void refillQueue();
 }
@@ -145,7 +146,17 @@ const schedulePreload = () => {
     }, 4000);
 };
 
-function handleError(reason: string) {
+/** Já tentou o outro endereço do servidor para a música atual? */
+let triedFailover = false;
+
+async function handleError(reason: string) {
+    // Servidor com dois endereços: se o atual caiu e o outro responde, continua do mesmo ponto.
+    const config = getActiveConfig();
+    if (config && config.type !== 'local' && !triedFailover && (await failover(config))) {
+        triedFailover = true;
+        void loadCurrent(true, usePosition.getState().position);
+        return;
+    }
     errorStreak += 1;
     const song = currentItem()?.song;
     toast.error(i18n.t('player.playbackError'), song ? `${song.title} — ${i18n.t(`player.errors.${reason}`, { defaultValue: reason })}` : undefined);
@@ -176,9 +187,12 @@ export function attachEngine() {
             }
             void next(false);
         },
-        onError: (reason) => handleError(reason),
+        onError: (reason) => void handleError(reason),
         onState: (status) => {
-            if (status === 'playing') errorStreak = 0;
+            if (status === 'playing') {
+                errorStreak = 0;
+                triedFailover = false;
+            }
             set({ status });
         },
         onTime: (position, duration, buffered) => {
@@ -413,6 +427,14 @@ export const setFullscreen = (fullscreen: boolean) => set({ fullscreen });
 // ---------------------------------------------------------------------------
 // Rádio e Auto DJ: completam a fila quando ela está acabando
 // ---------------------------------------------------------------------------
+
+/** Liga ou desliga o Auto DJ. Ao ligar, já completa a fila se ela estiver acabando. */
+export function toggleAutoDj() {
+    const enabled = !settings().autoDjEnabled;
+    settings().set({ autoDjEnabled: enabled });
+    toast.info(i18n.t(enabled ? 'player.autoDjOn' : 'player.autoDjOff'));
+    if (enabled) void refillQueue();
+}
 
 let refilling = false;
 async function refillQueue() {

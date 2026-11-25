@@ -53,30 +53,3 @@ export function mixText(mix: Mix, t: TFunction): MixText {
     }
 }
 
-/** Cores da capa de cada tipo de mix. */
-export const mixGradient = (mix: Mix) => {
-    const daypart = mix.daypart || getDaypart(Date.now());
-    switch (mix.kind) {
-        case 'daylist':
-            return daypart === 'morning'
-                ? 'linear-gradient(135deg, #ffb36b, #ff5e8a)'
-                : daypart === 'afternoon'
-                  ? 'linear-gradient(135deg, #ffd15c, #ff7a3d)'
-                  : daypart === 'night'
-                    ? 'linear-gradient(135deg, #5a5cff, #c04bff)'
-                    : 'linear-gradient(135deg, #1d2b64, #6a3fb5)';
-        case 'daypart':
-            return daypart === 'morning' ? 'linear-gradient(135deg, #f7b733, #fc4a1a)' : daypart === 'afternoon' ? 'linear-gradient(135deg, #2fb8ff, #1b6bd8)' : 'linear-gradient(135deg, #3a2d8f, #9d4bdb)';
-        case 'onRepeat':
-            return 'linear-gradient(135deg, #ff4fb1, #8e2de2)';
-        case 'repeatRewind':
-            return 'linear-gradient(135deg, #14b8a6, #0f5f8a)';
-        case 'discover':
-            return 'linear-gradient(135deg, #1db954, #0b6b3a)';
-        default: {
-            let h = 0;
-            for (const c of mix.genre || '') h = (h * 31 + c.charCodeAt(0)) % 360;
-            return `linear-gradient(135deg, hsl(${h} 70% 50%), hsl(${(h + 50) % 360} 65% 30%))`;
-        }
-    }
-};

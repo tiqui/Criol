@@ -3,6 +3,7 @@ import { type ReactNode, useEffect, useState } from 'react';
 
 import { coverColor, seedColor } from '@/lib/color';
 import { useSettings } from '@/settings/store';
+import { useCurrentBase } from '@/sources/endpoint';
 import { getSource, useActiveConfig } from '@/sources/store';
 
 import { Cover } from './cover';
@@ -12,6 +13,7 @@ import styles from './page.module.css';
 /** Cor da capa (ou da semente) para o fundo dos cabeçalhos. */
 export const useHeaderColor = (coverId: null | string | undefined, seed: string) => {
     const config = useActiveConfig();
+    const base = useCurrentBase(config);
     const enabled = useSettings((s) => s.coverColors);
     const [color, setColor] = useState<null | string>(null);
     useEffect(() => {
@@ -22,7 +24,7 @@ export const useHeaderColor = (coverId: null | string | undefined, seed: string)
         return () => {
             alive = false;
         };
-    }, [config, coverId, enabled]);
+    }, [base, config, coverId, enabled]);
     if (!enabled) return null;
     return color || seedColor(seed);
 };
@@ -38,11 +40,14 @@ interface HeroProps {
     meta?: ReactNode;
     description?: ReactNode;
     actions?: ReactNode;
+    /** Cor fixa do cabeçalho (sem ler a capa). */
+    color?: string;
 }
 
 /** Cabeçalho das páginas de álbum, artista, playlist, mix... */
-export function Hero({ actions, coverId, description, icon, label, media, meta, round, seed, title }: HeroProps) {
-    const color = useHeaderColor(coverId, seed);
+export function Hero({ actions, color: fixedColor, coverId, description, icon, label, media, meta, round, seed, title }: HeroProps) {
+    const coverColor = useHeaderColor(fixedColor ? null : coverId, seed);
+    const color = fixedColor || coverColor;
     return (
         <header className={styles.hero} style={color ? { '--hero-color': color } as React.CSSProperties : undefined}>
             <div className={styles.heroInner}>

@@ -3,6 +3,7 @@ import type { Song } from '@shared/types';
 
 import { randomId } from '@/lib/md5';
 
+import { currentBase, ensureBase, failover } from './endpoint';
 import {
     type FavoriteKind,
     type MusicSource,
@@ -16,7 +17,7 @@ import {
 
 type Json = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-const VERSION = '2.0.0';
+const VERSION = __CRIOL_VERSION__;
 const TICKS_PER_MS = 10_000;
 
 const deviceId = () => {
@@ -39,15 +40,24 @@ const authHeader = (token?: string) => {
     return `MediaBrowser ${parts.join(', ')}`;
 };
 
-async function request(url: string, token: string | undefined, init: RequestInit = {}): Promise<Response> {
-    let response: Response;
-    try {
-        response = await fetch(url, {
+async function request(url: string, token: string | undefined, init: RequestInit = {}, retry?: () => Promise<null | string>): Promise<Response> {
+    const send = (target: string) =>
+        fetch(target, {
             ...init,
             headers: { Authorization: authHeader(token), 'Content-Type': 'application/json', ...(init.headers || {}) },
         });
+    let response: Response;
+    try {
+        response = await send(url);
     } catch {
-        throw new SourceError('Não foi possível conectar ao servidor.', 'network');
+        // Sem resposta: se o outro endereço do servidor estiver no ar, tenta por ele.
+        const other = retry ? await retry() : null;
+        if (!other) throw new SourceError('Não foi possível conectar ao servidor.', 'network');
+        try {
+            response = await send(other);
+        } catch {
+            throw new SourceError('Não foi possível conectar ao servidor.', 'network');
+        }
     }
     if (response.status === 401 || response.status === 403) throw new SourceError('Usuário ou senha incorretos.', 'auth');
     if (response.status === 404) throw new SourceError('Não encontrado.', 'notFound');
@@ -107,17 +117,21 @@ function toSong(raw: Json): Song {
 }
 
 export function createJellyfinSource(config: SourceConfig): MusicSource {
-    const base = config.url!;
     const token = config.jellyfin?.token;
     const userId = config.jellyfin?.userId || '';
+    /** Endereço em uso (principal ou alternativo). */
+    const base = () => currentBase(config);
+    /** Monta o mesmo pedido no outro endereço, se a troca aconteceu. */
+    const retryOn = (pathAndQuery: string) => async () => ((await failover(config)) ? `${base()}${pathAndQuery}` : null);
 
     const get = async (path: string, params: Record<string, number | string> = {}) => {
         const query = new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)]));
-        const response = await request(`${base}${path}${query.size ? `?${query}` : ''}`, token);
+        const target = `${path}${query.size ? `?${query}` : ''}`;
+        const response = await request(`${base()}${target}`, token, {}, retryOn(target));
         return (await response.json()) as Json;
     };
     const send = async (method: string, path: string, body?: unknown) => {
-        await request(`${base}${path}`, token, { body: body === undefined ? undefined : JSON.stringify(body), method });
+        await request(`${base()}${path}`, token, { body: body === undefined ? undefined : JSON.stringify(body), method }, retryOn(path));
     };
 
     const fetchPlaylists = async () => {
@@ -192,6 +206,7 @@ export function createJellyfinSource(config: SourceConfig): MusicSource {
         },
 
         async streamUrl(song) {
+            await ensureBase(config);
             const params = new URLSearchParams({
                 AudioCodec: 'aac',
                 Container: 'opus,webm|opus,mp3,aac,m4a|aac,m4b|aac,flac,webma,webm|webma,wav,ogg',
@@ -202,11 +217,11 @@ export function createJellyfinSource(config: SourceConfig): MusicSource {
                 UserId: userId,
                 api_key: token || '',
             });
-            return `${base}/Audio/${song.id}/universal?${params}`;
+            return `${base()}/Audio/${song.id}/universal?${params}`;
         },
 
         coverUrl(coverId, size) {
-            return `${base}/Items/${coverId}/Images/Primary?fillHeight=${size}&fillWidth=${size}&quality=90`;
+            return `${base()}/Items/${coverId}/Images/Primary?fillHeight=${size}&fillWidth=${size}&quality=90`;
         },
 
         async lyrics(song) {
@@ -248,7 +263,7 @@ export function createJellyfinSource(config: SourceConfig): MusicSource {
         },
 
         async createPlaylist(name, songIds) {
-            const response = await request(`${base}/Playlists`, token, {
+            const response = await request(`${base()}/Playlists`, token, {
                 body: JSON.stringify({ Ids: songIds, MediaType: 'Audio', Name: name, UserId: userId }),
                 method: 'POST',
             });

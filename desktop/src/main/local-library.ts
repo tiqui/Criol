@@ -18,7 +18,7 @@ export const AUDIO_EXTENSIONS = new Set([
 ]);
 const COVER_NAMES = ['cover', 'folder', 'front', 'album', 'albumart', 'artwork', 'capa'];
 const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
-const INDEX_VERSION = 2;
+const INDEX_VERSION = 3;
 
 interface IndexedFile {
     mtimeMs: number;
@@ -275,6 +275,33 @@ async function extractArt(
     return art;
 }
 
+/**
+ * Faixas da mesma pasta com o mesmo álbum ficam juntas mesmo quando só algumas têm "artista do
+ * álbum" na tag: as que não têm herdam o mais comum entre as outras.
+ */
+function mergeAlbums(files: Record<string, IndexedFile>, changedAlbums: Set<string>) {
+    const groups = new Map<string, IndexedFile[]>();
+    for (const [rel, file] of Object.entries(files)) {
+        const folder = rel.includes('/') ? rel.slice(0, rel.lastIndexOf('/')) : '';
+        const key = `${folder.toLowerCase()}|${normalizeText(file.song.album)}`;
+        const group = groups.get(key) || [];
+        group.push(file);
+        groups.set(key, group);
+    }
+    for (const group of groups.values()) {
+        const counts = new Map<string, number>();
+        for (const file of group) if (file.song.albumArtist) counts.set(file.song.albumArtist, (counts.get(file.song.albumArtist) || 0) + 1);
+        const missing = group.filter((file) => !file.song.albumArtist);
+        if (!counts.size || !missing.length) continue;
+        const albumArtist = [...counts].sort((a, b) => b[1] - a[1])[0][0];
+        for (const file of missing) {
+            const albumId = stableId(`album:${normalizeText(file.song.album)}|${normalizeText(albumArtist)}`);
+            changedAlbums.add(albumId);
+            file.song = { ...file.song, albumArtist, albumId };
+        }
+    }
+}
+
 /** Escaneia a pasta (só lê de novo os arquivos que mudaram desde o último escaneamento). */
 export async function scanLocalLibrary(
     sourceId: string,
@@ -308,6 +335,7 @@ export async function scanLocalLibrary(
         }
     };
     await Promise.all(Array.from({ length: 6 }, worker));
+    mergeAlbums(next, changedAlbums);
 
     // Um arquivo novo pode ter trazido a capa que faltava: procura de novo para esses álbuns.
     for (const id of changedAlbums) prevArt.delete(id);

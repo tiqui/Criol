@@ -4,50 +4,102 @@
     overflow: hidden;
     border-radius: var(--radius-sm);
     container-type: inline-size;
+    color: #fff;
 }
 
-.covers {
+.glyph,
+.daylist,
+.collage {
     position: absolute;
-    top: 9cqi;
-    right: 9cqi;
-    display: flex;
+    inset: 0;
 }
 
-.thumb {
-    position: relative;
-    width: 34cqi;
-    margin-left: -12cqi;
-    border-radius: 4px;
-    box-shadow: 0 6px 16px rgb(0 0 0 / 35%);
-    transform: rotate(6deg);
+/* Ícone grande no centro (46% da capa, um pouco acima do meio). */
+.glyph {
+    display: grid;
+    place-items: center;
+    padding-bottom: 4cqi;
 }
 
-.thumb:nth-child(2) {
-    transform: rotate(-4deg) translateY(4cqi);
+.glyph svg {
+    width: 46cqi;
+    height: 46cqi;
 }
 
-.thumb:nth-child(3) {
-    transform: rotate(2deg) translateY(8cqi);
+/* Daylist: orbe luminoso desfocado que "respira" devagar. */
+.orb {
+    position: absolute;
+    top: 14cqi;
+    left: 19cqi;
+    width: 62cqi;
+    height: 62cqi;
+    border-radius: 50%;
+    background: radial-gradient(circle at 45% 40%, #fff 0%, var(--orb) 26%, var(--edge) 50%, transparent 58%);
+    filter: blur(2.5cqi);
+    animation: breathe 4.5s ease-in-out infinite alternate;
+}
+
+@keyframes breathe {
+    to {
+        transform: scale(1.06);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .orb {
+        animation: none;
+    }
+}
+
+/* Mix de gênero: mosaico 2×2 das capas, que se apaga na cor do gênero embaixo. */
+.collage {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+
+.tile {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+}
+
+.fade {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 38%;
+}
+
+/* Selo do "Feito para você". */
+.badge {
+    position: absolute;
+    top: 5cqi;
+    left: 5cqi;
+    display: grid;
+    place-items: center;
+    width: clamp(18px, 11cqi, 30px);
+    height: clamp(18px, 11cqi, 30px);
+    border-radius: 50%;
+    background: rgb(0 0 0 / 35%);
+}
+
+.badge svg {
+    width: 62%;
+    height: 62%;
 }
 
 .label {
     position: absolute;
-    right: 8cqi;
-    bottom: 8cqi;
-    left: 8cqi;
-    display: flex;
-    flex-direction: column;
-    gap: 2cqi;
-    font-size: clamp(13px, 11cqi, 26px);
-    font-weight: 900;
-    line-height: 1.05;
-    color: #fff;
-    text-shadow: 0 2px 10px rgb(0 0 0 / 30%);
-    letter-spacing: -0.01em;
-}
-
-.label svg {
-    width: clamp(12px, 9cqi, 22px);
-    height: clamp(12px, 9cqi, 22px);
-    opacity: 0.9;
+    right: 7cqi;
+    bottom: 6cqi;
+    left: 7cqi;
+    overflow: hidden;
+    font-size: clamp(13px, 9cqi, 28px);
+    font-weight: 700;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-shadow: 0 1px 8px rgb(0 0 0 / 35%);
 }

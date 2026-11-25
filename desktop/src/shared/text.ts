@@ -28,8 +28,10 @@ export const splitArtists = (value: null | string | undefined): string[] => {
 };
 
 export const splitGenres = (value: null | string | string[] | undefined): string[] => {
+    // Cada item também é separado: há tags com a lista já quebrada e o separador grudado
+    // (ex.: ["Rap", ", Rap/Hip Hop"]).
     // eslint-disable-next-line no-control-regex -- tags ID3v2.4 separam valores com NUL
-    const parts = Array.isArray(value) ? value : (value || '').split(/[;,\u0000]/);
+    const parts = (Array.isArray(value) ? value : [value || '']).flatMap((v) => String(v).split(/[;,\u0000]/));
     const seen = new Set<string>();
     const out: string[] = [];
     for (const part of parts) {
