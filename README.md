@@ -62,12 +62,6 @@ permissão para ler a pasta).
 
 O histórico de escuta exportado de uma versão pode ser importado na outra.
 
-## Quem usava o Crify
-
-O Criol para desktop e web substitui o Crify. Na primeira vez que abre, ele traz sozinho os
-servidores, pastas, fila, histórico, perfil e playlists do Crify. A imagem Docker passa a ser
-`ghcr.io/tiqui/criol` (as variáveis `CRIFY_SERVER_*` antigas continuam funcionando).
-
 ## Estrutura
 
 - [`desktop/`](desktop): Electron + React + TypeScript. Como rodar e compilar está no
