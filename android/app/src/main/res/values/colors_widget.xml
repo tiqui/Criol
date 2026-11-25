@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Cores de prévia dos widgets (tema "Padrão escuro"). Na tela inicial o widget é
+     pintado com o tema e a cor de destaque escolhidos no app. -->
+<resources>
+    <color name="wg_background">#FF0C0C0C</color>
+    <color name="wg_surface">#FF1E1E1E</color>
+    <color name="wg_foreground">#FFE1E1E1</color>
+    <color name="wg_muted">#FF969696</color>
+    <color name="wg_primary">#FF3574FC</color>
+    <color name="wg_track">#38E1E1E1</color>
+    <color name="wg_ripple">#33FFFFFF</color>
+</resources>

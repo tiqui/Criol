@@ -1,0 +1,92 @@
+.home {
+    gap: 34px;
+}
+
+@media (width <= 768px) {
+    .home {
+        gap: 26px;
+    }
+}
+
+.greeting h1 {
+    font-size: clamp(24px, 3.4vw, 34px);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.shortcuts {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+    gap: 10px;
+    margin-top: -14px;
+}
+
+@media (width <= 768px) {
+    .shortcuts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: -10px;
+    }
+}
+
+.shortcut {
+    position: relative;
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    height: 56px;
+    padding-right: 10px;
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: 700;
+    background: var(--surface-high);
+    border-radius: var(--radius-sm);
+    transition: background 0.15s;
+}
+
+.shortcut > :first-child {
+    width: 56px;
+    border-radius: 0;
+}
+
+.shortcut:hover {
+    background: var(--active);
+}
+
+.shortcut-play {
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.shortcut:hover .shortcut-play {
+    opacity: 1;
+}
+
+@media (width <= 768px) {
+    .shortcut {
+        grid-template-columns: 48px minmax(0, 1fr);
+        gap: 8px;
+        height: 48px;
+        font-size: 12.5px;
+    }
+
+    .shortcut > :first-child {
+        width: 48px;
+    }
+
+    .shortcut-play {
+        display: none !important;
+    }
+}
+
+.more {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--fg-muted);
+}
+
+.more:hover {
+    color: var(--fg);
+    text-decoration: underline;
+}

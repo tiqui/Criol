@@ -1,0 +1,72 @@
+.stack {
+    position: fixed;
+    right: 16px;
+    bottom: calc(var(--playerbar-h) + 16px);
+    z-index: 400;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+    pointer-events: none;
+}
+
+@media (width <= 768px) {
+    .stack {
+        right: 12px;
+        bottom: calc(150px + env(safe-area-inset-bottom));
+        left: 12px;
+        align-items: stretch;
+    }
+}
+
+.toast {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    max-width: 380px;
+    padding: 12px 14px;
+    color: var(--fg);
+    pointer-events: auto;
+    cursor: pointer;
+    background: var(--surface-high);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    animation: rise-in 0.22s var(--ease);
+}
+
+@media (width <= 768px) {
+    .toast {
+        max-width: none;
+    }
+}
+
+.icon {
+    margin-top: 1px;
+    color: var(--primary);
+}
+
+.toast[data-kind='error'] .icon {
+    color: #f05252;
+}
+
+.toast[data-kind='success'] .icon {
+    color: #2ecc71;
+}
+
+.text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    font-size: 13px;
+}
+
+.text strong {
+    font-weight: 600;
+}
+
+.text span {
+    overflow-wrap: anywhere;
+    color: var(--fg-muted);
+}

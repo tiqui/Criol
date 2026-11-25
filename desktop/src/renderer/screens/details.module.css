@@ -1,0 +1,96 @@
+.dot {
+    opacity: 0.6;
+}
+
+.strong {
+    font-weight: 700;
+}
+
+a.strong:hover {
+    text-decoration: underline;
+}
+
+.big-play {
+    box-shadow: 0 8px 20px rgb(0 0 0 / 35%);
+}
+
+.big-play:hover:not(:disabled) {
+    transform: scale(1.04);
+}
+
+.footnote {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin-top: -12px;
+    font-size: 12.5px;
+    color: var(--fg-muted);
+}
+
+.footnote a:hover {
+    color: var(--fg);
+    text-decoration: underline;
+}
+
+.format {
+    color: var(--fg-subtle);
+}
+
+.see-all {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--fg-muted);
+}
+
+.see-all:hover {
+    color: var(--fg);
+}
+
+.crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    align-items: center;
+    padding-top: 8px;
+    font-size: 13px;
+    color: var(--fg-muted);
+}
+
+.crumbs a:hover {
+    color: var(--fg);
+    text-decoration: underline;
+}
+
+.crumbs strong {
+    color: var(--fg);
+}
+
+.crumb-sep {
+    margin: 0 6px;
+    opacity: 0.5;
+}
+
+.folder-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    align-items: baseline;
+    margin-top: -12px;
+}
+
+.folder-head h1 {
+    overflow-wrap: anywhere;
+    font-size: clamp(24px, 3.4vw, 34px);
+    font-weight: 900;
+}
+
+.folder-head span {
+    color: var(--fg-muted);
+}
+
+.actions-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: -10px;
+}

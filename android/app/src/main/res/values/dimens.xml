@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="wg_radius">16dp</dimen>
+    <!-- Capas com canto pequeno, como no app -->
+    <dimen name="wg_art_radius">6dp</dimen>
+</resources>

@@ -1,0 +1,56 @@
+.figure {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+}
+
+.bars {
+    display: flex;
+    gap: 2px;
+    align-items: flex-end;
+    padding-bottom: 1px;
+    border-bottom: 1px solid var(--border);
+}
+
+.slot {
+    display: flex;
+    flex: 1;
+    align-items: flex-end;
+    height: 100%;
+}
+
+.bar {
+    width: 100%;
+    background: var(--primary);
+    border-radius: 4px 4px 0 0;
+    opacity: 0.75;
+    transition: opacity 0.15s;
+}
+
+.slot:hover .bar {
+    opacity: 1;
+}
+
+.highlight {
+    opacity: 1;
+}
+
+.zero {
+    background: var(--active);
+    opacity: 1;
+}
+
+.axis {
+    display: flex;
+    gap: 2px;
+    font-size: 10.5px;
+    color: var(--fg-muted);
+}
+
+.axis span {
+    flex: 1;
+    overflow: visible;
+    text-align: center;
+    white-space: nowrap;
+}

@@ -1,0 +1,156 @@
+.bar {
+    z-index: 15;
+    display: grid;
+    grid-area: player;
+    grid-template-columns: minmax(180px, 1fr) minmax(320px, 680px) minmax(180px, 1fr);
+    gap: 16px;
+    align-items: center;
+    padding: 0 16px;
+    background: var(--bg-alt);
+    border-top: 1px solid var(--border);
+}
+
+@media (width <= 1000px) {
+    .bar {
+        grid-template-columns: minmax(150px, 1fr) minmax(280px, 1.4fr) auto;
+    }
+
+    .volume {
+        width: auto !important;
+    }
+
+    .volume > :last-child {
+        display: none;
+    }
+}
+
+.now {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    min-width: 0;
+}
+
+.cover {
+    position: relative;
+    flex-shrink: 0;
+    width: 56px;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 35%);
+}
+
+.expand {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    color: #fff;
+    background: rgb(0 0 0 / 60%);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.cover:hover .expand {
+    opacity: 1;
+}
+
+.meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.title {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.title:hover,
+.artist a:hover {
+    text-decoration: underline;
+}
+
+.artist {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 12.5px;
+    color: var(--fg-muted);
+}
+
+.badge {
+    flex-shrink: 0;
+    padding: 1px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: var(--primary-soft);
+    border-radius: 4px;
+}
+
+.idle {
+    font-size: 13px;
+    color: var(--fg-subtle);
+}
+
+.center {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+    min-width: 0;
+}
+
+.transport {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.transport-large {
+    gap: 18px;
+}
+
+.play {
+    margin: 0 4px;
+}
+
+.progress {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+}
+
+.time {
+    min-width: 40px;
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+    color: var(--fg-muted);
+    text-align: center;
+}
+
+.tools {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.volume {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    width: 140px;
+}

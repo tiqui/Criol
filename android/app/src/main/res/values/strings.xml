@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Criol</string>
+
+    <!-- Widgets -->
+    <string name="widget_small_label">Criol 3×1</string>
+    <string name="widget_medium_label">Criol 3×3</string>
+    <string name="widget_large_label">Criol 4×4</string>
+    <string name="widget_small_desc">Música atual e play numa linha</string>
+    <string name="widget_medium_desc">Capa, progresso e controles</string>
+    <string name="widget_large_desc">Capa grande, progresso e todos os controles</string>
+    <string name="widget_idle_title">Nada tocando</string>
+    <string name="widget_idle_subtitle">Toque para abrir o Criol</string>
+    <string name="widget_play">Tocar ou pausar</string>
+    <string name="widget_prev">Anterior</string>
+    <string name="widget_next">Próxima</string>
+    <string name="widget_shuffle">Aleatório</string>
+    <string name="widget_repeat">Repetir</string>
+</resources>

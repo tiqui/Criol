@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fundo do cartão: pintado com a cor de fundo do tema -->
+    <style name="Widget.Criol.Card" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:src">@drawable/wg_shape_card</item>
+        <item name="android:scaleType">fitXY</item>
+        <item name="android:tint">@color/wg_background</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <!-- Capa desfocada atrás do conteúdo (3x3 e 4x4) -->
+    <style name="Widget.Criol.Backdrop" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@drawable/wg_shape_card</item>
+        <item name="android:clipToOutline">true</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="android:visibility">gone</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <!-- Botões sem fundo, como no player do app -->
+    <style name="Widget.Criol.Control" parent="">
+        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:padding">9dp</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:background">@drawable/wg_ripple_circle</item>
+        <item name="android:tint">@color/wg_foreground</item>
+    </style>
+
+    <!-- Play: círculo na cor do texto com o ícone na cor do fundo -->
+    <style name="Widget.Criol.PlayButton" parent="">
+        <item name="android:foreground">@drawable/wg_ripple_circle</item>
+        <item name="android:contentDescription">@string/widget_play</item>
+    </style>
+
+    <style name="Widget.Criol.PlayCircle" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:src">@drawable/wg_shape_circle</item>
+        <item name="android:scaleType">fitXY</item>
+        <item name="android:tint">@color/wg_foreground</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <style name="Widget.Criol.PlayIcon" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:src">@drawable/wg_play</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:tint">@color/wg_background</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <style name="Widget.Criol.Title" parent="">
+        <item name="android:textColor">@color/wg_foreground</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="Widget.Criol.Artist" parent="">
+        <item name="android:textColor">@color/wg_muted</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="Widget.Criol.Time" parent="">
+        <item name="android:textColor">@color/wg_muted</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <!-- Capa vazia: quadrado na cor de superfície com uma nota -->
+    <style name="Widget.Criol.ArtTile" parent="">
+        <item name="android:adjustViewBounds">true</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:src">@drawable/wg_tile</item>
+        <item name="android:tint">@color/wg_surface</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <style name="Widget.Criol.ArtNote" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:src">@drawable/wg_note</item>
+        <item name="android:tint">@color/wg_muted</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <style name="Widget.Criol.Art" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@drawable/wg_shape_art</item>
+        <item name="android:clipToOutline">true</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="android:visibility">gone</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+</resources>

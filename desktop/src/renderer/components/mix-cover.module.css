@@ -1,0 +1,53 @@
+.mix {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    container-type: inline-size;
+}
+
+.covers {
+    position: absolute;
+    top: 9cqi;
+    right: 9cqi;
+    display: flex;
+}
+
+.thumb {
+    position: relative;
+    width: 34cqi;
+    margin-left: -12cqi;
+    border-radius: 4px;
+    box-shadow: 0 6px 16px rgb(0 0 0 / 35%);
+    transform: rotate(6deg);
+}
+
+.thumb:nth-child(2) {
+    transform: rotate(-4deg) translateY(4cqi);
+}
+
+.thumb:nth-child(3) {
+    transform: rotate(2deg) translateY(8cqi);
+}
+
+.label {
+    position: absolute;
+    right: 8cqi;
+    bottom: 8cqi;
+    left: 8cqi;
+    display: flex;
+    flex-direction: column;
+    gap: 2cqi;
+    font-size: clamp(13px, 11cqi, 26px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: #fff;
+    text-shadow: 0 2px 10px rgb(0 0 0 / 30%);
+    letter-spacing: -0.01em;
+}
+
+.label svg {
+    width: clamp(12px, 9cqi, 22px);
+    height: clamp(12px, 9cqi, 22px);
+    opacity: 0.9;
+}

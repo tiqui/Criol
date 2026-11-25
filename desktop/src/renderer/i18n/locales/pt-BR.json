@@ -1,0 +1,535 @@
+{
+    "achievements": {
+        "brokenRecord": {
+            "description": "Ouça a mesma música 10 vezes em um único dia.",
+            "title": "Disco arranhado"
+        },
+        "earlyBird": {
+            "description": "Toque 50 músicas entre 5h e 8h da manhã.",
+            "title": "Madrugador"
+        },
+        "explorer": {
+            "description": "Ouça 100 artistas diferentes.",
+            "title": "Explorador"
+        },
+        "firstPlay": {
+            "description": "Ouça sua primeira música no Criol.",
+            "title": "Primeira reprodução"
+        },
+        "genreHopper": {
+            "description": "Ouça músicas de 20 gêneros diferentes.",
+            "title": "Eclético"
+        },
+        "hours10": {
+            "description": "Acumule 10 horas ouvindo música.",
+            "title": "10 horas de som"
+        },
+        "hours100": {
+            "description": "Acumule 100 horas ouvindo música.",
+            "title": "Centenário"
+        },
+        "marathon": {
+            "description": "Ouça 3 horas de música em um único dia.",
+            "title": "Maratona"
+        },
+        "nightOwl": {
+            "description": "Toque 50 músicas entre meia-noite e 5h.",
+            "title": "Coruja"
+        },
+        "streak30": {
+            "description": "Ouça música 30 dias seguidos.",
+            "title": "Mês sem pausa"
+        },
+        "streak7": {
+            "description": "Ouça música 7 dias seguidos.",
+            "title": "Semana perfeita"
+        },
+        "superfan": {
+            "description": "Toque 100 músicas do mesmo artista.",
+            "title": "Fã nº 1"
+        }
+    },
+    "actions": {
+        "addToPlaylist": "Adicionar à playlist",
+        "addToQueue": "Adicionar à fila",
+        "favorite": "Favoritar",
+        "goToAlbum": "Ir para o álbum",
+        "goToArtist": "Ir para o artista",
+        "openAlbum": "Abrir álbum",
+        "openArtist": "Abrir artista",
+        "play": "Tocar",
+        "playNext": "Tocar a seguir",
+        "radio": "Rádio",
+        "rating": "Avaliação",
+        "shuffle": "Aleatório",
+        "startRadio": "Rádio da música",
+        "unfavorite": "Remover dos favoritos"
+    },
+    "album": {
+        "moreFrom": "Mais de {{artist}}"
+    },
+    "archetypes": {
+        "balanced": {
+            "description": "Você equilibra favoritos e novidades, sem exagerar em nenhum lado.",
+            "title": "Equilibrado"
+        },
+        "earlyBird": {
+            "description": "Suas manhãs têm trilha sonora. Boa parte da sua escuta acontece cedo.",
+            "title": "Madrugador"
+        },
+        "explorer": {
+            "description": "Sempre atrás de algo novo: você ouve muitos artistas diferentes.",
+            "title": "Explorador"
+        },
+        "genreHopper": {
+            "description": "Nenhum gênero te prende. Sua biblioteca é um passeio por estilos.",
+            "title": "Eclético"
+        },
+        "loyal": {
+            "description": "Quando você gosta, gosta de verdade. Seus artistas favoritos dominam a playlist.",
+            "title": "Fiel"
+        },
+        "newcomer": {
+            "description": "Seu perfil ainda está se formando. Continue ouvindo para revelar seu DNA musical.",
+            "title": "Recém-chegado"
+        },
+        "nightOwl": {
+            "description": "A noite é sua. A maior parte da sua escuta acontece depois das 22h.",
+            "title": "Coruja"
+        },
+        "repeater": {
+            "description": "Achou a música certa? Repete até cansar (e não cansa).",
+            "title": "Repetidor"
+        }
+    },
+    "artist": {
+        "allSongs": "Todas as músicas ({{count}})",
+        "appearsOn": "Aparece em",
+        "popular": "Mais ouvidas"
+    },
+    "common": {
+        "albumCount_one": "{{formatted}} álbum",
+        "albumCount_other": "{{formatted}} álbuns",
+        "albumCount_zero": "{{formatted}} álbuns",
+        "cancel": "Cancelar",
+        "clear": "Limpar",
+        "close": "Fechar",
+        "confirm": "Confirmar",
+        "delete": "Apagar",
+        "error": "Algo deu errado",
+        "more": "Mais opções",
+        "new": "Novo",
+        "notFound": "Não encontrado",
+        "reload": "Recarregar",
+        "remove": "Remover",
+        "save": "Salvar",
+        "seeAll": "Ver tudo",
+        "showLess": "Mostrar menos",
+        "songCount_one": "{{formatted}} música",
+        "songCount_other": "{{formatted}} músicas",
+        "songCount_zero": "{{formatted}} músicas"
+    },
+    "home": {
+        "explore": "Explorar",
+        "favoriteAlbums": "Álbuns favoritos",
+        "greetingAfternoon": "Boa tarde",
+        "greetingMorning": "Bom dia",
+        "greetingName": "{{greeting}}, {{name}}",
+        "greetingNight": "Boa noite",
+        "madeForYou": "Feito para você",
+        "madeForYouSubtitle": "Mixes montadas a partir do que você ouve",
+        "mostPlayed": "Mais tocados",
+        "recentlyAdded": "Adicionados recentemente",
+        "recentlyPlayed": "Tocados recentemente",
+        "releases": "Lançamentos",
+        "shuffleExplore": "Sortear outros",
+        "yourArtists": "Seus artistas"
+    },
+    "library": {
+        "album": "Álbum",
+        "albumArtists": "Com álbuns",
+        "albums": "Álbuns",
+        "allArtists": "Todos",
+        "artist": "Artista",
+        "artists": "Artistas",
+        "asGrid": "Ver em grade",
+        "asList": "Ver em lista",
+        "emptyText": "Nenhuma música foi encontrada nesta fonte. Confira o endereço ou a pasta e tente de novo.",
+        "emptyTitle": "Biblioteca vazia",
+        "favorites": "Favoritos",
+        "folders": "Pastas",
+        "genre": "Gênero",
+        "genres": "Gêneros",
+        "loading": "Carregando a biblioteca…",
+        "noFavorites": "Nada nos favoritos ainda",
+        "noFavoritesText": "Toque no coração de uma música para guardá-la aqui.",
+        "noFolders": "Sem pastas",
+        "noFoldersText": "Esta fonte não informa o caminho dos arquivos.",
+        "playlist": "Playlist",
+        "playlists": "Playlists",
+        "progress": {
+            "albums": "Lendo álbuns",
+            "art": "Procurando capas",
+            "favorites": "Lendo favoritos",
+            "files": "Procurando arquivos",
+            "playlists": "Lendo playlists",
+            "songs": "Lendo músicas",
+            "tags": "Lendo as tags"
+        },
+        "reverse": "Inverter ordem",
+        "serverActionFailed": "O servidor não aceitou a alteração",
+        "songs": "Músicas",
+        "sort": {
+            "added": "Adicionados recentemente",
+            "album": "Álbum",
+            "albums": "Número de álbuns",
+            "artist": "Artista",
+            "duration": "Duração",
+            "name": "Nome",
+            "plays": "Mais tocados",
+            "random": "Aleatório",
+            "songs": "Número de músicas",
+            "title": "Título",
+            "year": "Ano"
+        },
+        "sortBy": "Ordenar por",
+        "summary": "{{songs}} músicas · {{albums}} álbuns · {{artists}} artistas",
+        "sync": "Atualizar biblioteca",
+        "syncAgain": "Atualizar de novo",
+        "syncFailed": "Não foi possível atualizar a biblioteca",
+        "syncing": "Atualizando"
+    },
+    "lyrics": {
+        "source": "Letra: {{source}}",
+        "sourceFile": "arquivo da música",
+        "sourceFolder": "pasta de letras",
+        "sourceServer": "servidor",
+        "unavailable": "Letra não disponível"
+    },
+    "mixes": {
+        "daylistDescription": "Seu dia em uma playlist. Muda ao longo do dia.",
+        "daypartFallback": "O que combina com este período do dia.",
+        "daypartTitle": "Mix da {{daypart}}",
+        "dayparts": {
+            "afternoon": {
+                "description": "Pra tarde render: {{genres}} e mais.",
+                "label": "Tarde",
+                "phrase": "à tarde"
+            },
+            "dawn": {
+                "description": "Pra madrugada: {{genres}} e mais.",
+                "label": "Madrugada",
+                "phrase": "de madrugada"
+            },
+            "morning": {
+                "description": "Pra começar o dia com {{genres}}.",
+                "label": "Manhã",
+                "phrase": "de manhã"
+            },
+            "night": {
+                "description": "Pra noite: {{genres}} e mais.",
+                "label": "Noite",
+                "phrase": "à noite"
+            }
+        },
+        "discover": "Radar de descobertas",
+        "discoverDescription": "Músicas da sua biblioteca que você nunca ouviu, nos gêneros que você curte.",
+        "empty": "Esta mix ficou vazia. Ouça mais um pouco e gere de novo.",
+        "genreDescription": "Seus favoritos de {{genre}} misturados com faixas pra descobrir.",
+        "genreTitle": "Mix {{genre}}",
+        "notPersonalized": "Ainda sem histórico suficiente",
+        "onRepeat": "No Repeat",
+        "onRepeatDescription": "As músicas que você está curtindo agora.",
+        "regenerate": "Gerar de novo",
+        "repeatRewind": "De volta pro repeat",
+        "repeatRewindDescription": "Recordar é viver.",
+        "saveAsPlaylist": "Salvar como playlist"
+    },
+    "nav": {
+        "back": "Voltar",
+        "collapse": "Recolher barra lateral",
+        "expand": "Expandir barra lateral",
+        "forward": "Avançar",
+        "home": "Início",
+        "library": "Biblioteca",
+        "main": "Navegação principal",
+        "profile": "Perfil",
+        "search": "Pesquisar",
+        "settings": "Configurações"
+    },
+    "player": {
+        "addedNext_one": "Vai tocar a seguir",
+        "addedNext_other": "{{count}} músicas vão tocar a seguir",
+        "addedToQueue_one": "Adicionada à fila",
+        "addedToQueue_other": "{{count}} músicas adicionadas à fila",
+        "errors": {
+            "decode": "o arquivo não pôde ser tocado",
+            "format": "formato não suportado",
+            "load": "não foi possível carregar",
+            "network": "falha de rede"
+        },
+        "lyrics": "Letra",
+        "mute": "Silenciar",
+        "next": "Próxima",
+        "nothingPlaying": "Nada tocando",
+        "openFullscreen": "Abrir player",
+        "options": "Velocidade e timer",
+        "pause": "Pausar",
+        "play": "Tocar",
+        "playbackError": "Não foi possível tocar",
+        "playingFrom": "Tocando do álbum",
+        "previous": "Anterior",
+        "progress": "Progresso",
+        "queue": "Fila",
+        "radio": "Rádio",
+        "radioStarted": "Rádio de “{{title}}”",
+        "repeatAll": "Repetir tudo",
+        "repeatOff": "Repetir",
+        "repeatOne": "Repetir esta",
+        "shuffle": "Aleatório",
+        "skipBack": "Voltar {{seconds}} s",
+        "skipForward": "Avançar {{seconds}} s",
+        "sleepEndOfSong": "No fim da música",
+        "sleepMinutes": "{{count}} minutos",
+        "sleepOff": "Desligar timer",
+        "sleepTimer": "Timer de sono",
+        "sleepUntil": "Para às {{time}}",
+        "speed": "Velocidade ({{speed}}×)",
+        "unmute": "Ativar som",
+        "volume": "Volume"
+    },
+    "playlist": {
+        "added_one": "Adicionada a {{name}}",
+        "added_other": "{{count}} músicas adicionadas a {{name}}",
+        "alreadyThere": "Já está em {{name}}",
+        "created": "Playlist “{{name}}” criada",
+        "delete": "Apagar playlist",
+        "deleteConfirm": "Apagar “{{name}}”? As músicas continuam na biblioteca.",
+        "empty": "Playlist vazia",
+        "emptyList": "Nenhuma playlist",
+        "emptyListText": "Crie uma playlist e adicione músicas pelo menu de qualquer música.",
+        "emptyText": "Use o menu ⋯ de qualquer música e escolha “Adicionar à playlist”.",
+        "name": "Nome",
+        "new": "Nova playlist",
+        "removeSong": "Remover da playlist",
+        "rename": "Renomear"
+    },
+    "profile": {
+        "achievements": "Conquistas",
+        "anonymous": "Seu perfil",
+        "bio": "Bio",
+        "byHour": "Minutos por hora do dia",
+        "byWeekday": "Minutos por dia da semana",
+        "changePhoto": "Trocar foto",
+        "clock": "Relógio musical",
+        "color": "Cor",
+        "currentStreak": "Sequência atual",
+        "days_one": "{{count}} dia",
+        "days_other": "{{count}} dias",
+        "days_zero": "0 dias",
+        "dna": "DNA musical",
+        "edit": "Editar perfil",
+        "emptyText": "Ouça algumas músicas e suas estatísticas aparecem aqui.",
+        "emptyTitle": "Sem histórico ainda",
+        "longestStreak": "Recorde de dias seguidos",
+        "minutesListened": "Minutos ouvidos",
+        "name": "Nome",
+        "nothingYet": "Nada neste período.",
+        "photoFailed": "Não foi possível usar essa imagem",
+        "pinHint": "Fixar no perfil",
+        "playsLabel": "Reproduções",
+        "plays_one": "{{formatted}} reprodução",
+        "plays_other": "{{formatted}} reproduções",
+        "plays_zero": "{{formatted}} reproduções",
+        "range": {
+            "4w": "4 semanas",
+            "6m": "6 meses",
+            "all": "Sempre"
+        },
+        "recaps": "Resumos mensais",
+        "recent": "Ouvidas recentemente",
+        "removePhoto": "Remover foto",
+        "since": "Ouvindo desde {{date}}",
+        "top": "Seus tops",
+        "traits": {
+            "loyalty": "Fidelidade",
+            "novelty": "Novidade",
+            "variety": "Variedade"
+        }
+    },
+    "queue": {
+        "andMore_one": "e mais {{count}} música",
+        "andMore_other": "e mais {{count}} músicas",
+        "clear": "Limpar",
+        "drag": "Arraste para reordenar",
+        "empty": "A fila está vazia",
+        "next": "A seguir",
+        "nowPlaying": "Tocando agora",
+        "radioOf": "Rádio de “{{title}}”",
+        "remove": "Remover da fila",
+        "stopRadio": "Parar rádio"
+    },
+    "recap": {
+        "activeDays": "Dias com música",
+        "artistOfMonth": "Artista do mês",
+        "artists": "Artistas",
+        "busiestDay": "Dia mais animado · {{minutes}}",
+        "empty": "Nada ouvido neste mês",
+        "favoriteDaypart": "Período favorito",
+        "less": "{{percent}}% a menos que no mês anterior",
+        "minutesValue_one": "{{minutes}} minuto",
+        "minutesValue_other": "{{minutes}} minutos",
+        "minutesValue_zero": "0 minutos",
+        "more": "{{percent}}% a mais que no mês anterior",
+        "newArtists": "Artistas novos",
+        "perDay": "Minutos por dia",
+        "readyMessage": "Seu resumo de {{month}} está pronto.",
+        "readyTitle": "Resumo do mês",
+        "soFar": "Até agora",
+        "title": "Resumo do mês",
+        "topAlbums": "Álbuns do mês",
+        "topArtists": "Artistas do mês",
+        "topGenres": "Gêneros do mês",
+        "topSongs": "Músicas do mês",
+        "underOneMinute": "menos de 1 minuto"
+    },
+    "search": {
+        "allSongs": "Ver todas ({{count}})",
+        "browse": "Navegar por gênero",
+        "nothing": "Nada encontrado para “{{query}}”",
+        "nothingText": "Confira a ortografia ou tente outras palavras.",
+        "placeholder": "O que você quer ouvir?",
+        "topResult": "Melhor resultado"
+    },
+    "settings": {
+        "about": {
+            "desktop": "App para computador",
+            "text": "Player de música para pastas do computador, Navidrome/Subsonic e Jellyfin. Seu histórico, perfil e mixes ficam só neste aparelho.",
+            "web": "Versão web"
+        },
+        "appearance": {
+            "accent": "Cor de destaque",
+            "coverColors": "Cabeçalhos com a cor da capa",
+            "coverColorsHint": "Álbuns, artistas e playlists ganham o tom da capa.",
+            "custom": "Escolher cor",
+            "language": "Idioma",
+            "playerBlur": "Capa desfocada no player",
+            "playerBlurHint": "Fundo do player em tela cheia com a capa da música.",
+            "showExplore": "Mostrar “Explorar” no início",
+            "system": "Do sistema",
+            "theme": "Tema",
+            "themeColor": "Cor do tema"
+        },
+        "autoDj": {
+            "albums": "Álbuns",
+            "allowDuplicates": "Permitir repetidas",
+            "count": "Quantas por vez",
+            "enabled": "Ligar o Auto DJ",
+            "hint": "Quando a fila está acabando, adiciona músicas parecidas com a atual.",
+            "mode": "Adicionar",
+            "random": "Aleatórias",
+            "similar": "Parecidas",
+            "songs": "Músicas",
+            "strategy": "Estilo",
+            "timing": "Quando faltar",
+            "timingHint": "Número de músicas restantes na fila."
+        },
+        "history": {
+            "clear": "Apagar histórico",
+            "clearConfirm": "Apagar todo o histórico de escuta? Perfil, mixes e resumos voltam ao começo.",
+            "clearHint": "Não dá para desfazer.",
+            "count_one": "{{formatted}} escuta registrada",
+            "count_other": "{{formatted}} escutas registradas",
+            "count_zero": "Nenhuma escuta registrada",
+            "export": "Exportar histórico",
+            "exportButton": "Exportar",
+            "import": "Importar histórico",
+            "importButton": "Importar",
+            "importFailed": "Arquivo de histórico inválido",
+            "importHint": "Aceita históricos do Criol (Android, desktop e web) e do Crify.",
+            "imported_one": "{{count}} escuta importada",
+            "imported_other": "{{count}} escutas importadas",
+            "imported_zero": "Nenhuma escuta nova",
+            "record": "Registrar o que eu ouço",
+            "recordHint": "Usado no perfil, nas mixes e nos resumos mensais."
+        },
+        "lyrics": {
+            "add": "Adicionar pasta",
+            "folders": "Pastas de letras",
+            "foldersHint": "Arquivos .lrc e .txt destas pastas são ligados às músicas pelo nome do arquivo, “Artista - Título” ou pelas tags.",
+            "fontSize": "Tamanho da letra",
+            "found_one": "{{count}} arquivo de letra encontrado",
+            "found_other": "{{count}} arquivos de letra encontrados",
+            "found_zero": "Nenhum arquivo de letra encontrado",
+            "online": "Buscar letras na internet",
+            "onlineHint": "Usa o LRCLIB quando a música não tem letra no arquivo ou no servidor.",
+            "pick": "Escolha a pasta de letras",
+            "unsupported": "Este navegador não permite escolher pastas.",
+            "webFolder": "Pasta do navegador"
+        },
+        "playback": {
+            "resumeQueue": "Retomar a fila",
+            "resumeQueueHint": "Ao abrir, volta na mesma música e posição.",
+            "scrobble": "Registrar reproduções no servidor",
+            "scrobbleHint": "Envia o que você ouve para o Navidrome/Jellyfin (e Last.fm, se configurado lá).",
+            "showRatings": "Mostrar avaliação com estrelas",
+            "skipBack": "Voltar no player",
+            "skipForward": "Avançar no player"
+        },
+        "sections": {
+            "about": "Sobre",
+            "appearance": "Aparência",
+            "history": "Perfil e histórico",
+            "lyrics": "Letras",
+            "playback": "Reprodução",
+            "sources": "Fontes"
+        },
+        "sources": {
+            "remove": "Remover fonte",
+            "removeConfirm": "Remover “{{name}}”? As músicas continuam no servidor ou na pasta.",
+            "rescan": "Escanear de novo",
+            "songs_one": "{{formatted}} música",
+            "songs_other": "{{formatted}} músicas",
+            "songs_zero": "Nenhuma música",
+            "syncedAt": "atualizado em {{date}}",
+            "title": "Servidores e pastas",
+            "use": "Usar"
+        }
+    },
+    "sources": {
+        "add": "Adicionar fonte",
+        "addFolder": "Adicionar pasta",
+        "added": "Fonte adicionada",
+        "allowAccess": "Permitir acesso",
+        "allowAccessText": "O navegador precisa da sua permissão para ler a pasta “{{name}}” de novo.",
+        "allowAccessTitle": "Permitir acesso à pasta",
+        "authFailed": "Usuário ou senha incorretos.",
+        "changeFolder": "Trocar pasta",
+        "connect": "Conectar",
+        "folderRequired": "Escolha uma pasta.",
+        "manage": "Gerenciar fontes",
+        "name": "Nome (opcional)",
+        "namePlaceholder": "Minha música",
+        "networkFailed": "Não foi possível conectar. Confira o endereço e se o servidor está ligado.",
+        "password": "Senha",
+        "passwordNote": "A senha não fica salva: o Criol guarda só um token de acesso.",
+        "pickFolder": "Escolher pasta",
+        "typeHints": {
+            "jellyfin": "Servidor Jellyfin",
+            "local": "Arquivos do computador",
+            "subsonic": "Navidrome, Gonic, Airsonic…"
+        },
+        "types": {
+            "jellyfin": "Jellyfin",
+            "local": "Pasta",
+            "subsonic": "Navidrome / Subsonic"
+        },
+        "url": "Endereço do servidor",
+        "urlRequired": "Informe o endereço do servidor.",
+        "username": "Usuário"
+    },
+    "welcome": {
+        "text": "Escolha de onde vêm as suas músicas. Dá para adicionar mais fontes depois em Configurações.",
+        "title": "Bem-vindo ao Criol"
+    }
+}

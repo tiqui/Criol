@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- [aleatório] anterior  PLAY  próxima [repetir], distribuídos por igual.
+     Espaçadores são FrameLayout: RemoteViews não aceita Space. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1" />
+
+    <ImageView
+        android:id="@+id/wg_shuffle"
+        style="@style/Widget.Criol.Control"
+        android:contentDescription="@string/widget_shuffle"
+        android:padding="11dp"
+        android:src="@drawable/wg_shuffle"
+        android:tint="@color/wg_muted"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1" />
+
+    <ImageView
+        android:id="@+id/wg_prev"
+        style="@style/Widget.Criol.Control"
+        android:contentDescription="@string/widget_prev"
+        android:src="@drawable/wg_prev" />
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1" />
+
+    <FrameLayout
+        android:id="@+id/wg_play"
+        style="@style/Widget.Criol.PlayButton"
+        android:layout_width="56dp"
+        android:layout_height="56dp">
+
+        <ImageView
+            android:id="@+id/wg_play_bg"
+            style="@style/Widget.Criol.PlayCircle" />
+
+        <ImageView
+            android:id="@+id/wg_play_icon"
+            style="@style/Widget.Criol.PlayIcon"
+            android:padding="12dp" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1" />
+
+    <ImageView
+        android:id="@+id/wg_next"
+        style="@style/Widget.Criol.Control"
+        android:contentDescription="@string/widget_next"
+        android:src="@drawable/wg_next" />
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1" />
+
+    <ImageView
+        android:id="@+id/wg_repeat"
+        style="@style/Widget.Criol.Control"
+        android:contentDescription="@string/widget_repeat"
+        android:padding="11dp"
+        android:src="@drawable/wg_repeat"
+        android:tint="@color/wg_muted"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1" />
+</LinearLayout>

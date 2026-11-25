@@ -1,0 +1,23 @@
+.loading {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: 24px;
+    color: var(--fg-muted);
+    text-align: center;
+}
+
+.loading strong {
+    color: var(--fg);
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 8px;
+}

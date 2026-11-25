@@ -1,0 +1,47 @@
+appId: app.criol
+productName: Criol
+artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+directories:
+    buildResources: build
+    output: release
+files:
+    - out/**/*
+    - package.json
+asarUnpack:
+    - '**/*.node'
+
+win:
+    target:
+        - target: nsis
+          arch: [x64, arm64]
+        - target: zip
+          arch: [x64, arm64]
+nsis:
+    oneClick: false
+    allowToChangeInstallationDirectory: true
+    createDesktopShortcut: always
+    shortcutName: Criol
+    uninstallDisplayName: Criol
+
+mac:
+    category: public.app-category.music
+    target:
+        - target: dmg
+          arch: [arm64, x64]
+        - target: zip
+          arch: [arm64, x64]
+    identity: null
+
+linux:
+    category: AudioVideo;Audio;Player
+    maintainer: tiqui <tiqui@users.noreply.github.com>
+    synopsis: Player de música para pastas locais, Navidrome/Subsonic e Jellyfin
+    target:
+        - target: AppImage
+          arch: [x64, arm64]
+        - target: deb
+          arch: [x64, arm64]
+        - target: tar.xz
+          arch: [x64, arm64]
+
+publish: null

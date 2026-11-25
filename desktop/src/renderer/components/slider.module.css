@@ -1,0 +1,77 @@
+.slider {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 18px;
+    cursor: pointer;
+    touch-action: none;
+    outline: none;
+}
+
+.track {
+    position: relative;
+    width: 100%;
+    height: 4px;
+    overflow: hidden;
+    background: var(--active);
+    border-radius: 4px;
+}
+
+.buffered {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--border-strong);
+}
+
+.fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--fg);
+    border-radius: 4px;
+}
+
+.slider:hover .fill,
+.dragging .fill,
+.slider:focus-visible .fill {
+    background: var(--primary);
+}
+
+.thumb {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--fg);
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgb(0 0 0 / 40%);
+    opacity: 0;
+    transition: opacity 0.15s;
+    transform: translateX(-50%);
+}
+
+.slider:hover .thumb,
+.dragging .thumb,
+.slider:focus-visible .thumb {
+    opacity: 1;
+}
+
+@media (pointer: coarse) {
+    .thumb {
+        opacity: 1;
+    }
+}
+
+.tooltip {
+    position: absolute;
+    bottom: 20px;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    color: var(--fg);
+    white-space: nowrap;
+    pointer-events: none;
+    background: var(--surface-high);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transform: translateX(-50%);
+}

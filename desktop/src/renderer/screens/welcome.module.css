@@ -1,0 +1,42 @@
+.welcome {
+    display: grid;
+    place-items: center;
+    min-height: 100%;
+    padding: 32px 16px;
+    background: radial-gradient(ellipse at top, var(--primary-soft), transparent 60%);
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: min(520px, 100%);
+    padding: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    animation: rise-in 0.3s var(--ease);
+}
+
+@media (width <= 768px) {
+    .card {
+        padding: 22px 18px;
+    }
+}
+
+.logo {
+    width: 52px;
+    height: 52px;
+}
+
+.card h1 {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.card > p {
+    margin-bottom: 8px;
+    color: var(--fg-muted);
+}

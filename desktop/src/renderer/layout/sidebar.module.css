@@ -1,0 +1,241 @@
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    grid-area: side;
+    gap: 4px;
+    min-height: 0;
+    padding: 0 10px 10px;
+    background: var(--bg-alt);
+    border-right: 1px solid var(--border);
+    container-type: inline-size;
+}
+
+.brand {
+    display: flex;
+    flex-shrink: 0;
+    gap: 10px;
+    align-items: center;
+    height: var(--titlebar-h);
+    padding: 0 4px 0 8px;
+    margin-bottom: 4px;
+}
+
+.mac {
+    padding-left: 80px;
+}
+
+.logo {
+    width: 24px;
+    height: 24px;
+}
+
+.brand-name {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+
+.collapse {
+    margin-left: auto;
+}
+
+.source {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    height: 36px;
+    padding: 0 10px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--fg-muted);
+    text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+
+.source .label:first-of-type {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.source:hover {
+    color: var(--fg);
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.item {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    height: 38px;
+    padding: 0 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--fg-muted);
+    border-radius: var(--radius-sm);
+    transition:
+        color 0.12s,
+        background 0.12s;
+}
+
+.item:hover {
+    color: var(--fg);
+    background: var(--hover);
+}
+
+.active,
+.active:hover {
+    color: var(--fg);
+    background: var(--active);
+}
+
+.item.active svg {
+    color: var(--primary);
+}
+
+.group {
+    padding: 14px 10px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--fg-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.playlists-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 4px;
+}
+
+.group-link {
+    display: flex;
+    flex: 1;
+    gap: 14px;
+    align-items: center;
+    border-radius: var(--radius-sm);
+}
+
+.group-link:hover {
+    color: var(--fg);
+}
+
+.group-link.active {
+    color: var(--fg);
+    background: none;
+}
+
+.collapsed-only {
+    display: none;
+}
+
+.playlists {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 1px;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.playlist {
+    display: flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 13.5px;
+    color: var(--fg-muted);
+    border-radius: var(--radius-sm);
+}
+
+.playlist:hover {
+    color: var(--fg);
+    background: var(--hover);
+}
+
+.footer {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+}
+
+.profile {
+    gap: 12px;
+}
+
+/* Barra estreita: só ícones. */
+@container (width < 140px) {
+    .label,
+    .brand-name,
+    .playlists {
+        display: none !important;
+    }
+
+    .brand {
+        justify-content: center;
+        padding: 0;
+    }
+
+    .logo {
+        display: none;
+    }
+
+    .collapse {
+        margin: 0;
+    }
+
+    .item,
+    .source {
+        justify-content: center;
+        padding: 0;
+    }
+
+    .group:not(.group-link) {
+        height: 1px;
+        padding: 0;
+        margin: 10px 8px;
+        overflow: hidden;
+        background: var(--border);
+    }
+
+    .group-link {
+        justify-content: center;
+        height: 38px;
+        padding: 0;
+        margin: 0;
+        color: var(--fg-muted);
+    }
+
+    .collapsed-only {
+        display: block;
+    }
+
+    .playlists-head {
+        padding: 0;
+    }
+
+    .playlists-head + .playlists {
+        flex: 1;
+    }
+
+    .footer {
+        margin-top: auto;
+    }
+}
+
+.collapsed .mac {
+    padding-top: 28px;
+}

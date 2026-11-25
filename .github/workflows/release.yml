@@ -1,0 +1,78 @@
+name: Release
+
+# Gera os instaladores do desktop (Windows, Linux, macOS) e anexa na release da tag.
+on:
+    push:
+        tags: ['v*']
+    workflow_dispatch:
+        inputs:
+            tag:
+                description: 'Tag da release que vai receber os instaladores (ex.: v2.0.0)'
+                required: true
+
+permissions:
+    contents: write
+
+concurrency:
+    group: release-${{ github.event.inputs.tag || github.ref }}
+
+jobs:
+    build:
+        name: Build (${{ matrix.os }})
+        runs-on: ${{ matrix.os }}
+        defaults:
+            run:
+                working-directory: desktop
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [windows-latest, ubuntu-latest, macos-latest]
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.event.inputs.tag || github.ref }}
+            - uses: pnpm/action-setup@v4
+              with:
+                  package_json_file: desktop/package.json
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+                  cache: pnpm
+                  cache-dependency-path: desktop/pnpm-lock.yaml
+            - run: pnpm install --frozen-lockfile
+            - name: Instaladores
+              shell: bash
+              run: |
+                  case "${{ runner.os }}" in
+                      Windows) pnpm run package:win ;;
+                      Linux) pnpm run package:linux ;;
+                      macOS) pnpm run package:mac ;;
+                  esac
+              env:
+                  CSC_IDENTITY_AUTO_DISCOVERY: false
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: criol-${{ runner.os }}
+                  path: |
+                      desktop/release/*.exe
+                      desktop/release/*.zip
+                      desktop/release/*.dmg
+                      desktop/release/*.AppImage
+                      desktop/release/*.deb
+                      desktop/release/*.tar.xz
+                  if-no-files-found: ignore
+
+    release:
+        name: Anexar na release
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/download-artifact@v4
+              with:
+                  path: dist
+                  merge-multiple: true
+            - uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+                  files: dist/*
+                  fail_on_unmatched_files: false

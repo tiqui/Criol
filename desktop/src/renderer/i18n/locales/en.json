@@ -1,0 +1,530 @@
+{
+    "achievements": {
+        "brokenRecord": {
+            "description": "Listen to the same song 10 times in a single day.",
+            "title": "Broken record"
+        },
+        "earlyBird": {
+            "description": "Play 50 songs between 5 and 8 AM.",
+            "title": "Early bird"
+        },
+        "explorer": {
+            "description": "Listen to 100 different artists.",
+            "title": "Explorer"
+        },
+        "firstPlay": {
+            "description": "Listen to your first song on Criol.",
+            "title": "First play"
+        },
+        "genreHopper": {
+            "description": "Listen to songs from 20 different genres.",
+            "title": "Genre hopper"
+        },
+        "hours10": {
+            "description": "Listen to 10 hours of music.",
+            "title": "10 hours of sound"
+        },
+        "hours100": {
+            "description": "Listen to 100 hours of music.",
+            "title": "Centurion"
+        },
+        "marathon": {
+            "description": "Listen to 3 hours of music in a single day.",
+            "title": "Marathon"
+        },
+        "nightOwl": {
+            "description": "Play 50 songs between midnight and 5 AM.",
+            "title": "Night owl"
+        },
+        "streak30": {
+            "description": "Listen to music 30 days in a row.",
+            "title": "Non-stop month"
+        },
+        "streak7": {
+            "description": "Listen to music 7 days in a row.",
+            "title": "Perfect week"
+        },
+        "superfan": {
+            "description": "Play 100 songs by the same artist.",
+            "title": "Superfan"
+        }
+    },
+    "actions": {
+        "addToPlaylist": "Add to playlist",
+        "addToQueue": "Add to queue",
+        "favorite": "Add to favorites",
+        "goToAlbum": "Go to album",
+        "goToArtist": "Go to artist",
+        "openAlbum": "Open album",
+        "openArtist": "Open artist",
+        "play": "Play",
+        "playNext": "Play next",
+        "radio": "Radio",
+        "rating": "Rating",
+        "shuffle": "Shuffle",
+        "startRadio": "Song radio",
+        "unfavorite": "Remove from favorites"
+    },
+    "album": {
+        "moreFrom": "More by {{artist}}"
+    },
+    "archetypes": {
+        "balanced": {
+            "description": "You balance favorites and new music without overdoing either.",
+            "title": "Balanced"
+        },
+        "earlyBird": {
+            "description": "Your mornings have a soundtrack. A lot of your listening happens early.",
+            "title": "Early bird"
+        },
+        "explorer": {
+            "description": "Always after something new: you listen to many different artists.",
+            "title": "Explorer"
+        },
+        "genreHopper": {
+            "description": "No genre holds you. Your library is a tour of styles.",
+            "title": "Genre hopper"
+        },
+        "loyal": {
+            "description": "When you like something, you really like it. Your favorite artists rule the playlist.",
+            "title": "Loyal"
+        },
+        "newcomer": {
+            "description": "Your profile is still taking shape. Keep listening to reveal your music DNA.",
+            "title": "Newcomer"
+        },
+        "nightOwl": {
+            "description": "The night is yours. Most of your listening happens after 10 PM.",
+            "title": "Night owl"
+        },
+        "repeater": {
+            "description": "Found the right song? You play it until you drop (and you never do).",
+            "title": "Repeater"
+        }
+    },
+    "artist": {
+        "allSongs": "All songs ({{count}})",
+        "appearsOn": "Appears on",
+        "popular": "Most played"
+    },
+    "common": {
+        "albumCount_one": "{{formatted}} album",
+        "albumCount_other": "{{formatted}} albums",
+        "cancel": "Cancel",
+        "clear": "Clear",
+        "close": "Close",
+        "confirm": "Confirm",
+        "delete": "Delete",
+        "error": "Something went wrong",
+        "more": "More options",
+        "new": "New",
+        "notFound": "Not found",
+        "reload": "Reload",
+        "remove": "Remove",
+        "save": "Save",
+        "seeAll": "See all",
+        "showLess": "Show less",
+        "songCount_one": "{{formatted}} song",
+        "songCount_other": "{{formatted}} songs"
+    },
+    "home": {
+        "explore": "Explore",
+        "favoriteAlbums": "Favorite albums",
+        "greetingAfternoon": "Good afternoon",
+        "greetingMorning": "Good morning",
+        "greetingName": "{{greeting}}, {{name}}",
+        "greetingNight": "Good evening",
+        "madeForYou": "Made for you",
+        "madeForYouSubtitle": "Mixes built from what you listen to",
+        "mostPlayed": "Most played",
+        "recentlyAdded": "Recently added",
+        "recentlyPlayed": "Recently played",
+        "releases": "Releases",
+        "shuffleExplore": "Shuffle again",
+        "yourArtists": "Your artists"
+    },
+    "library": {
+        "album": "Album",
+        "albumArtists": "With albums",
+        "albums": "Albums",
+        "allArtists": "All",
+        "artist": "Artist",
+        "artists": "Artists",
+        "asGrid": "Show as grid",
+        "asList": "Show as list",
+        "emptyText": "No songs were found in this source. Check the address or folder and try again.",
+        "emptyTitle": "Empty library",
+        "favorites": "Favorites",
+        "folders": "Folders",
+        "genre": "Genre",
+        "genres": "Genres",
+        "loading": "Loading your library…",
+        "noFavorites": "No favorites yet",
+        "noFavoritesText": "Tap the heart on a song to keep it here.",
+        "noFolders": "No folders",
+        "noFoldersText": "This source does not report file paths.",
+        "playlist": "Playlist",
+        "playlists": "Playlists",
+        "progress": {
+            "albums": "Reading albums",
+            "art": "Looking for covers",
+            "favorites": "Reading favorites",
+            "files": "Looking for files",
+            "playlists": "Reading playlists",
+            "songs": "Reading songs",
+            "tags": "Reading tags"
+        },
+        "reverse": "Reverse order",
+        "serverActionFailed": "The server did not accept the change",
+        "songs": "Songs",
+        "sort": {
+            "added": "Recently added",
+            "album": "Album",
+            "albums": "Number of albums",
+            "artist": "Artist",
+            "duration": "Duration",
+            "name": "Name",
+            "plays": "Most played",
+            "random": "Random",
+            "songs": "Number of songs",
+            "title": "Title",
+            "year": "Year"
+        },
+        "sortBy": "Sort by",
+        "summary": "{{songs}} songs · {{albums}} albums · {{artists}} artists",
+        "sync": "Refresh library",
+        "syncAgain": "Try again",
+        "syncFailed": "Could not refresh the library",
+        "syncing": "Refreshing"
+    },
+    "lyrics": {
+        "source": "Lyrics: {{source}}",
+        "sourceFile": "music file",
+        "sourceFolder": "lyrics folder",
+        "sourceServer": "server",
+        "unavailable": "Lyrics not available"
+    },
+    "mixes": {
+        "daylistDescription": "Your day in a playlist. Changes throughout the day.",
+        "daypartFallback": "What fits this time of day.",
+        "daypartTitle": "{{daypart}} Mix",
+        "dayparts": {
+            "afternoon": {
+                "description": "To keep the afternoon going: {{genres}} and more.",
+                "label": "Afternoon",
+                "phrase": "afternoon"
+            },
+            "dawn": {
+                "description": "For late nights: {{genres}} and more.",
+                "label": "Late night",
+                "phrase": "late night"
+            },
+            "morning": {
+                "description": "Start the day with {{genres}}.",
+                "label": "Morning",
+                "phrase": "morning"
+            },
+            "night": {
+                "description": "For the evening: {{genres}} and more.",
+                "label": "Evening",
+                "phrase": "evening"
+            }
+        },
+        "discover": "Discovery radar",
+        "discoverDescription": "Songs from your library you have never played, in genres you enjoy.",
+        "empty": "This mix came out empty. Listen a bit more and generate it again.",
+        "genreDescription": "Your {{genre}} favorites mixed with tracks to discover.",
+        "genreTitle": "{{genre}} Mix",
+        "notPersonalized": "Not enough history yet",
+        "onRepeat": "On Repeat",
+        "onRepeatDescription": "The songs you are into right now.",
+        "regenerate": "Generate again",
+        "repeatRewind": "Repeat Rewind",
+        "repeatRewindDescription": "Past favorites worth a replay.",
+        "saveAsPlaylist": "Save as playlist"
+    },
+    "nav": {
+        "back": "Back",
+        "collapse": "Collapse sidebar",
+        "expand": "Expand sidebar",
+        "forward": "Forward",
+        "home": "Home",
+        "library": "Library",
+        "main": "Main navigation",
+        "profile": "Profile",
+        "search": "Search",
+        "settings": "Settings"
+    },
+    "player": {
+        "addedNext_one": "Playing next",
+        "addedNext_other": "{{count}} songs playing next",
+        "addedToQueue_one": "Added to queue",
+        "addedToQueue_other": "{{count}} songs added to queue",
+        "errors": {
+            "decode": "the file could not be played",
+            "format": "unsupported format",
+            "load": "could not load",
+            "network": "network error"
+        },
+        "lyrics": "Lyrics",
+        "mute": "Mute",
+        "next": "Next",
+        "nothingPlaying": "Nothing playing",
+        "openFullscreen": "Open player",
+        "options": "Speed and timer",
+        "pause": "Pause",
+        "play": "Play",
+        "playbackError": "Could not play",
+        "playingFrom": "Playing from album",
+        "previous": "Previous",
+        "progress": "Progress",
+        "queue": "Queue",
+        "radio": "Radio",
+        "radioStarted": "“{{title}}” radio",
+        "repeatAll": "Repeat all",
+        "repeatOff": "Repeat",
+        "repeatOne": "Repeat one",
+        "shuffle": "Shuffle",
+        "skipBack": "Back {{seconds}} s",
+        "skipForward": "Forward {{seconds}} s",
+        "sleepEndOfSong": "At the end of the song",
+        "sleepMinutes": "{{count}} minutes",
+        "sleepOff": "Turn off timer",
+        "sleepTimer": "Sleep timer",
+        "sleepUntil": "Stops at {{time}}",
+        "speed": "Speed ({{speed}}×)",
+        "unmute": "Unmute",
+        "volume": "Volume"
+    },
+    "playlist": {
+        "added_one": "Added to {{name}}",
+        "added_other": "{{count}} songs added to {{name}}",
+        "alreadyThere": "Already in {{name}}",
+        "created": "Playlist “{{name}}” created",
+        "delete": "Delete playlist",
+        "deleteConfirm": "Delete “{{name}}”? The songs stay in your library.",
+        "empty": "Empty playlist",
+        "emptyList": "No playlists",
+        "emptyListText": "Create a playlist and add songs from any song menu.",
+        "emptyText": "Use the ⋯ menu on any song and choose “Add to playlist”.",
+        "name": "Name",
+        "new": "New playlist",
+        "removeSong": "Remove from playlist",
+        "rename": "Rename"
+    },
+    "profile": {
+        "achievements": "Achievements",
+        "anonymous": "Your profile",
+        "bio": "Bio",
+        "byHour": "Minutes per hour of day",
+        "byWeekday": "Minutes per weekday",
+        "changePhoto": "Change photo",
+        "clock": "Music clock",
+        "color": "Color",
+        "currentStreak": "Current streak",
+        "days_one": "{{count}} day",
+        "days_other": "{{count}} days",
+        "dna": "Music DNA",
+        "edit": "Edit profile",
+        "emptyText": "Listen to a few songs and your stats will show up here.",
+        "emptyTitle": "No history yet",
+        "longestStreak": "Longest streak",
+        "minutesListened": "Minutes listened",
+        "name": "Name",
+        "nothingYet": "Nothing in this period.",
+        "photoFailed": "This image could not be used",
+        "pinHint": "Pin to profile",
+        "playsLabel": "Plays",
+        "plays_one": "{{formatted}} play",
+        "plays_other": "{{formatted}} plays",
+        "range": {
+            "4w": "4 weeks",
+            "6m": "6 months",
+            "all": "All time"
+        },
+        "recaps": "Monthly recaps",
+        "recent": "Recently played",
+        "removePhoto": "Remove photo",
+        "since": "Listening since {{date}}",
+        "top": "Your tops",
+        "traits": {
+            "loyalty": "Loyalty",
+            "novelty": "Novelty",
+            "variety": "Variety"
+        }
+    },
+    "queue": {
+        "andMore_one": "and {{count}} more song",
+        "andMore_other": "and {{count}} more songs",
+        "clear": "Clear",
+        "drag": "Drag to reorder",
+        "empty": "The queue is empty",
+        "next": "Next up",
+        "nowPlaying": "Now playing",
+        "radioOf": "“{{title}}” radio",
+        "remove": "Remove from queue",
+        "stopRadio": "Stop radio"
+    },
+    "recap": {
+        "activeDays": "Days with music",
+        "artistOfMonth": "Artist of the month",
+        "artists": "Artists",
+        "busiestDay": "Busiest day · {{minutes}}",
+        "empty": "Nothing played this month",
+        "favoriteDaypart": "Favorite time of day",
+        "less": "{{percent}}% less than the previous month",
+        "minutesValue_one": "{{minutes}} minute",
+        "minutesValue_other": "{{minutes}} minutes",
+        "more": "{{percent}}% more than the previous month",
+        "newArtists": "New artists",
+        "perDay": "Minutes per day",
+        "readyMessage": "Your {{month}} recap is ready.",
+        "readyTitle": "Monthly recap",
+        "soFar": "So far",
+        "title": "Monthly recap",
+        "topAlbums": "Albums of the month",
+        "topArtists": "Artists of the month",
+        "topGenres": "Genres of the month",
+        "topSongs": "Songs of the month",
+        "underOneMinute": "less than 1 minute"
+    },
+    "search": {
+        "allSongs": "See all ({{count}})",
+        "browse": "Browse by genre",
+        "nothing": "Nothing found for “{{query}}”",
+        "nothingText": "Check the spelling or try other words.",
+        "placeholder": "What do you want to listen to?",
+        "topResult": "Top result"
+    },
+    "settings": {
+        "about": {
+            "desktop": "Desktop app",
+            "text": "Music player for computer folders, Navidrome/Subsonic and Jellyfin. Your history, profile and mixes stay on this device only.",
+            "web": "Web version"
+        },
+        "appearance": {
+            "accent": "Accent color",
+            "coverColors": "Headers in the cover color",
+            "coverColorsHint": "Albums, artists and playlists take the tone of their cover.",
+            "custom": "Pick a color",
+            "language": "Language",
+            "playerBlur": "Blurred cover in the player",
+            "playerBlurHint": "Full-screen player background with the song cover.",
+            "showExplore": "Show “Explore” on Home",
+            "system": "System",
+            "theme": "Theme",
+            "themeColor": "Theme color"
+        },
+        "autoDj": {
+            "albums": "Albums",
+            "allowDuplicates": "Allow repeats",
+            "count": "How many at a time",
+            "enabled": "Turn on Auto DJ",
+            "hint": "When the queue is running out, adds songs similar to the current one.",
+            "mode": "Add",
+            "random": "Random",
+            "similar": "Similar",
+            "songs": "Songs",
+            "strategy": "Style",
+            "timing": "When remaining",
+            "timingHint": "Number of songs left in the queue."
+        },
+        "history": {
+            "clear": "Delete history",
+            "clearConfirm": "Delete your whole listening history? Profile, mixes and recaps start over.",
+            "clearHint": "This cannot be undone.",
+            "count_one": "{{formatted}} listen recorded",
+            "count_other": "{{formatted}} listens recorded",
+            "count_zero": "No listens recorded",
+            "export": "Export history",
+            "exportButton": "Export",
+            "import": "Import history",
+            "importButton": "Import",
+            "importFailed": "Invalid history file",
+            "importHint": "Accepts history files from Criol (Android, desktop and web) and from Crify.",
+            "imported_one": "{{count}} listen imported",
+            "imported_other": "{{count}} listens imported",
+            "imported_zero": "No new listens",
+            "record": "Record what I listen to",
+            "recordHint": "Used by your profile, mixes and monthly recaps."
+        },
+        "lyrics": {
+            "add": "Add folder",
+            "folders": "Lyrics folders",
+            "foldersHint": ".lrc and .txt files in these folders are matched to songs by file name, “Artist - Title” or tags.",
+            "fontSize": "Lyrics size",
+            "found_one": "{{count}} lyrics file found",
+            "found_other": "{{count}} lyrics files found",
+            "found_zero": "No lyrics files found",
+            "online": "Find lyrics online",
+            "onlineHint": "Uses LRCLIB when a song has no lyrics in the file or on the server.",
+            "pick": "Choose the lyrics folder",
+            "unsupported": "This browser cannot pick folders.",
+            "webFolder": "Browser folder"
+        },
+        "playback": {
+            "resumeQueue": "Resume the queue",
+            "resumeQueueHint": "When opening, go back to the same song and position.",
+            "scrobble": "Record plays on the server",
+            "scrobbleHint": "Sends what you listen to to Navidrome/Jellyfin (and Last.fm, if set up there).",
+            "showRatings": "Show star ratings",
+            "skipBack": "Skip back in the player",
+            "skipForward": "Skip forward in the player"
+        },
+        "sections": {
+            "about": "About",
+            "appearance": "Appearance",
+            "history": "Profile and history",
+            "lyrics": "Lyrics",
+            "playback": "Playback",
+            "sources": "Sources"
+        },
+        "sources": {
+            "remove": "Remove source",
+            "removeConfirm": "Remove “{{name}}”? The songs stay on the server or in the folder.",
+            "rescan": "Scan again",
+            "songs_one": "{{formatted}} song",
+            "songs_other": "{{formatted}} songs",
+            "songs_zero": "No songs",
+            "syncedAt": "updated {{date}}",
+            "title": "Servers and folders",
+            "use": "Use"
+        }
+    },
+    "sources": {
+        "add": "Add source",
+        "addFolder": "Add folder",
+        "added": "Source added",
+        "allowAccess": "Allow access",
+        "allowAccessText": "The browser needs your permission to read the “{{name}}” folder again.",
+        "allowAccessTitle": "Allow folder access",
+        "authFailed": "Wrong username or password.",
+        "changeFolder": "Change folder",
+        "connect": "Connect",
+        "folderRequired": "Choose a folder.",
+        "manage": "Manage sources",
+        "name": "Name (optional)",
+        "namePlaceholder": "My music",
+        "networkFailed": "Could not connect. Check the address and whether the server is running.",
+        "password": "Password",
+        "passwordNote": "Your password is not stored: Criol keeps only an access token.",
+        "pickFolder": "Choose folder",
+        "typeHints": {
+            "jellyfin": "Jellyfin server",
+            "local": "Files on this computer",
+            "subsonic": "Navidrome, Gonic, Airsonic…"
+        },
+        "types": {
+            "jellyfin": "Jellyfin",
+            "local": "Folder",
+            "subsonic": "Navidrome / Subsonic"
+        },
+        "url": "Server address",
+        "urlRequired": "Enter the server address.",
+        "username": "Username"
+    },
+    "welcome": {
+        "text": "Choose where your music comes from. You can add more sources later in Settings.",
+        "title": "Welcome to Criol"
+    }
+}
