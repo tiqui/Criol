@@ -97,3 +97,24 @@ describe('rádio e Auto DJ', () => {
         expect(picks.some((s) => s.id === 'r3' || s.id === 'r5' || s.id === 'r1')).toBe(false);
     });
 });
+
+describe('capas dos gêneros', () => {
+    it('uma capa por artista, começando por quem tem mais músicas no gênero', () => {
+        const songs = [
+            song('g1', { albumId: 'a1', artist: 'Pouco', artists: ['Pouco'], coverId: 'c-pouco', genres: ['Hip Hop'] }),
+            song('g2', { albumId: 'a2', artist: 'Muito', artists: ['Muito'], coverId: 'c-muito', genres: ['Hip Hop'] }),
+            song('g3', { albumId: 'a2', artist: 'Muito', artists: ['Muito'], coverId: 'c-muito', genres: ['Hip Hop'] }),
+            song('g4', { albumId: 'a3', artist: 'Muito', artists: ['Muito'], coverId: 'c-muito-2', genres: ['Hip Hop'] }),
+            song('g5', { albumId: 'a4', artist: 'SemCapa', artists: ['SemCapa'], coverId: null, genres: ['Hip Hop'] }),
+        ];
+        const genre = new Library(songs).genres.find((g) => g.name === 'Hip Hop')!;
+        expect(genre.coverIds).toEqual(['c-muito', 'c-pouco']);
+        expect(genre.coverId).toBe('c-muito');
+    });
+
+    it('gênero sem nenhuma capa fica sem imagem', () => {
+        const genre = new Library([song('h1', { genres: ['Jazz'] })]).genres[0];
+        expect(genre.coverIds).toEqual([]);
+        expect(genre.coverId).toBeNull();
+    });
+});

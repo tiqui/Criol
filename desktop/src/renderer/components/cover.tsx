@@ -19,6 +19,8 @@ interface CoverProps {
     className?: string;
     icon?: IconName;
     alt?: string;
+    /** Outras capas para tentar se a principal não carregar (ex.: gêneros). */
+    fallbackIds?: string[];
 }
 
 const SIZES = { lg: 600, md: 300, sm: 96 };
@@ -48,8 +50,12 @@ export const useCoverUrl = (coverId: null | string | undefined, size: 'lg' | 'md
 };
 
 /** Capa com degradê de reserva (cada item tem sempre o mesmo degradê). */
-export const Cover = memo(function Cover({ alt = '', className, coverId, icon = 'music', round, seed, size = 'md' }: CoverProps) {
-    const url = useCoverUrl(coverId, size);
+export const Cover = memo(function Cover({ alt = '', className, coverId, fallbackIds, icon = 'music', round, seed, size = 'md' }: CoverProps) {
+    // Capa que não carregou passa para a próxima da lista (se houver).
+    const [failedIds, setFailedIds] = useState<string[]>([]);
+    const candidates = [coverId, ...(fallbackIds || [])].filter((id, i, all): id is string => Boolean(id) && all.indexOf(id) === i);
+    const current = candidates.find((id) => !failedIds.includes(id)) ?? null;
+    const url = useCoverUrl(current, size);
     const [failed, setFailed] = useState<null | string>(null);
     // Guarda qual endereço terminou de carregar, e não um "carregou" solto: com a imagem em cache
     // o onLoad pode chegar antes de um efeito que zerasse o estado, e a capa ficava invisível.
@@ -72,7 +78,10 @@ export const Cover = memo(function Cover({ alt = '', className, coverId, icon = 
                     draggable={false}
                     key={url}
                     loading="lazy"
-                    onError={() => setFailed(url)}
+                    onError={() => {
+                        if (current && candidates.indexOf(current) < candidates.length - 1) setFailedIds((ids) => [...ids, current]);
+                        else setFailed(url);
+                    }}
                     onLoad={() => setLoadedUrl(url)}
                     ref={(img) => {
                         // Imagem que já veio pronta do cache antes do React ouvir o load.

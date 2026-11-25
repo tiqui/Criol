@@ -246,7 +246,7 @@ function GenresTab() {
             getKey={(g) => g.id}
             items={library.genres}
             render={(g) => (
-                <Card coverId={g.coverId} icon="genre" onPlay={() => playSongs(g.songs, 0, { shuffle: true })} seed={g.id} subtitle={t('common.songCount', { count: g.songs.length, formatted: g.songs.length.toLocaleString() })} title={g.name} to={routes.genre(g.id)} />
+                <Card coverId={g.coverId} coverIds={g.coverIds} icon="genre" onPlay={() => playSongs(g.songs, 0, { shuffle: true })} seed={g.id} subtitle={t('common.songCount', { count: g.songs.length, formatted: g.songs.length.toLocaleString() })} title={g.name} to={routes.genre(g.id)} />
             )}
         />
     );

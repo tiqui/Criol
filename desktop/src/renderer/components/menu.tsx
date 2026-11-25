@@ -18,6 +18,10 @@ export interface MenuItem {
     divider?: boolean;
     /** Conteúdo livre (ex.: estrelas de avaliação). */
     custom?: ReactNode;
+    /** Não fecha o menu ao clicar (ex.: favoritar, que muda na hora). */
+    keepOpen?: boolean;
+    /** Rótulo e estado lidos ao vivo (hook chamado pelo item), para o menu aberto acompanhar. */
+    useLive?: () => { label?: string; filled?: boolean };
 }
 
 interface MenuHeader {
@@ -55,6 +59,27 @@ export function openMenu(at: { x: number; y: number } | HTMLElement, items: Menu
 
 const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
 
+/** Item cujo rótulo e ícone acompanham o estado (ex.: Favoritar / Remover dos favoritos). */
+function LiveItem({ item, onHover }: { item: MenuItem; onHover: () => void }) {
+    const live = item.useLive!();
+    return (
+        <button
+            className={clsx(styles.item, item.danger && styles.danger)}
+            disabled={item.disabled}
+            onClick={() => {
+                if (!item.keepOpen) closeMenu();
+                item.onSelect?.();
+            }}
+            onMouseEnter={onHover}
+            role="menuitem"
+            type="button"
+        >
+            {item.icon ? <Icon filled={live.filled} name={item.icon} size={18} /> : <span className={styles.iconSpace} />}
+            <span className={styles.label}>{live.label ?? item.label}</span>
+        </button>
+    );
+}
+
 function MenuList({ depth = 0, items, onBack }: { items: MenuItem[]; depth?: number; onBack?: () => void }) {
     const [sub, setSub] = useState<null | { items: MenuItem[]; top: number }>(null);
     const [mobileSub, setMobileSub] = useState<MenuItem[] | null>(null);
@@ -74,6 +99,7 @@ function MenuList({ depth = 0, items, onBack }: { items: MenuItem[]; depth?: num
                 if (item.divider) return <div className={styles.divider} key={`d${i}`} />;
                 if (item.custom) return <div className={styles.custom} key={`c${i}`}>{item.custom}</div>;
                 const hasChildren = Boolean(item.children?.length);
+                if (item.useLive) return <LiveItem item={item} key={`${item.label}${i}`} onHover={() => setSub(null)} />;
                 return (
                     <button
                         className={clsx(styles.item, item.danger && styles.danger)}
@@ -85,7 +111,7 @@ function MenuList({ depth = 0, items, onBack }: { items: MenuItem[]; depth?: num
                                 else setSub(sub ? null : { items: item.children!, top: (e.currentTarget as HTMLElement).offsetTop });
                                 return;
                             }
-                            closeMenu();
+                            if (!item.keepOpen) closeMenu();
                             item.onSelect?.();
                         }}
                         onMouseEnter={(e) => {

@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router';
 
 import { openSongMenu } from '@/components/actions';
 import { Cover, useCoverUrl } from '@/components/cover';
@@ -66,6 +67,13 @@ export function FullPlayer() {
     useEffect(() => {
         if (!song) setFullscreen(false);
     }, [song]);
+
+    // Trocou de página (ex.: "Ir para o álbum" no menu): sai da tela cheia para a página aparecer.
+    const { pathname } = useLocation();
+    const openedAt = useRef(pathname);
+    useEffect(() => {
+        if (pathname !== openedAt.current) setFullscreen(false);
+    }, [pathname]);
 
     if (!song) return null;
     const artist = libraryState().library.artistByName(song.artists[0] || song.artist);

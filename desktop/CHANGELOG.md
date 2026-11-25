@@ -2,6 +2,22 @@
 
 As mudanças de cada versão do Criol para desktop e web.
 
+## [2.1.1] - 2026-11-25
+
+### Mudado
+
+- Ícone novo, igual ao do Criol Android (app, instaladores, aba do navegador e versão web
+  instalada).
+- Gêneros quase sempre têm imagem: o card usa a capa de um dos artistas que mais aparecem no
+  gênero e, se ela não carregar, tenta a de outro.
+
+### Corrigido
+
+- Menu da música no player em tela cheia: as estrelas e o "Favoritar" mudam na hora, sem fechar o
+  menu; "Ir para o álbum/artista" sai da tela cheia; "Tocar" não aparece para a música que já
+  está tocando.
+- Vírgula solta entre os gêneros no rodapé da página do álbum.
+
 ## [2.1.0] - 2026-11-25
 
 ### Adicionado

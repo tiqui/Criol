@@ -95,8 +95,8 @@ function AlbumContent() {
                     const genre = library.genres.find((x) => x.name === g);
                     return (
                         <span key={g}>
-                            {i > 0 && ', '}
                             {genre ? <Link to={routes.genre(genre.id)}>{g}</Link> : g}
+                            {i < album.genres.length - 1 && ','}
                         </span>
                     );
                 })}
@@ -193,6 +193,7 @@ function GenreContent() {
             <Hero
                 actions={<BigPlay shuffle songs={genre.songs} />}
                 coverId={genre.coverId}
+                coverIds={genre.coverIds}
                 icon="genre"
                 label={t('library.genre')}
                 meta={

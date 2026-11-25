@@ -29,6 +29,30 @@ export interface Artist {
     coverId: null | string;
 }
 
+/**
+ * Capas para representar um gênero: uma por artista, começando pelos artistas com mais músicas
+ * nele (assim a capa é de quem "é" o gênero na sua biblioteca), até 8 opções.
+ */
+function genreCovers(songs: Song[]) {
+    const byArtist = new Map<string, { count: number; covers: Map<string, number> }>();
+    for (const song of songs) {
+        if (!song.coverId) continue;
+        const artist = normalizeText(song.albumArtist || song.artists[0] || song.artist);
+        const entry = byArtist.get(artist) || { count: 0, covers: new Map<string, number>() };
+        entry.count += 1;
+        entry.covers.set(song.coverId, (entry.covers.get(song.coverId) || 0) + 1);
+        byArtist.set(artist, entry);
+    }
+    const out: string[] = [];
+    for (const { covers } of [...byArtist.values()].sort((a, b) => b.count - a.count)) {
+        // O álbum desse artista com mais faixas no gênero.
+        const best = [...covers.entries()].sort((a, b) => b[1] - a[1])[0][0];
+        if (!out.includes(best)) out.push(best);
+        if (out.length >= 8) break;
+    }
+    return out;
+}
+
 export interface Genre {
     id: string;
     key: string;
@@ -36,6 +60,8 @@ export interface Genre {
     songs: Song[];
     albums: Album[];
     coverId: null | string;
+    /** Capas candidatas (uma por artista, dos que mais aparecem no gênero), para trocar se uma falhar. */
+    coverIds: string[];
 }
 
 export interface FolderNode {
@@ -197,9 +223,11 @@ export class Library {
         this.genres = [...genreAcc.entries()]
             .map(([key, entry]) => {
                 const genreAlbums = [...new Set(entry.songs.map((s) => s.albumId))].map((id) => this.albumsById.get(id)!).filter(Boolean);
+                const coverIds = genreCovers(entry.songs);
                 return {
                     albums: genreAlbums,
-                    coverId: genreAlbums.find((a) => a.coverId)?.coverId || null,
+                    coverId: coverIds[0] || null,
+                    coverIds,
                     id: stableId(`genre:${key}`),
                     key,
                     name: entry.name,

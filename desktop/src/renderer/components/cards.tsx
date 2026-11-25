@@ -12,6 +12,8 @@ import { ScrollContext } from './song-list';
 export interface CardProps {
     to: string;
     coverId: null | string;
+    /** Capas reserva (ex.: gêneros). */
+    coverIds?: string[];
     seed: string;
     title: string;
     subtitle?: ReactNode;
@@ -23,7 +25,7 @@ export interface CardProps {
     media?: ReactNode;
 }
 
-export function Card({ coverId, icon, media, onMenu, onPlay, round, seed, subtitle, title, to }: CardProps) {
+export function Card({ coverId, coverIds, icon, media, onMenu, onPlay, round, seed, subtitle, title, to }: CardProps) {
     const { t } = useTranslation();
     return (
         <Link
@@ -40,7 +42,7 @@ export function Card({ coverId, icon, media, onMenu, onPlay, round, seed, subtit
             to={to}
         >
             <div className={styles.media}>
-                {media || <Cover coverId={coverId} icon={icon} round={round} seed={seed} size="md" />}
+                {media || <Cover coverId={coverId} fallbackIds={coverIds} icon={icon} round={round} seed={seed} size="md" />}
                 {onPlay && (
                     <button
                         aria-label={t('actions.play')}

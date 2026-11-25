@@ -185,7 +185,7 @@ function HomeContent() {
             {library.genres.length > 0 && (
                 <Carousel action={<Link className={styles.more} to={routes.library('genres')}>{t('common.seeAll')}</Link>} title={t('library.genres')}>
                     {library.genres.slice(0, LIMIT).map((g) => (
-                        <Card coverId={g.coverId} icon="genre" key={g.id} onPlay={() => playSongs(g.songs, 0, { shuffle: true })} seed={g.id} subtitle={t('common.songCount', { count: g.songs.length, formatted: g.songs.length })} title={g.name} to={routes.genre(g.id)} />
+                        <Card coverId={g.coverId} coverIds={g.coverIds} icon="genre" key={g.id} onPlay={() => playSongs(g.songs, 0, { shuffle: true })} seed={g.id} subtitle={t('common.songCount', { count: g.songs.length, formatted: g.songs.length })} title={g.name} to={routes.genre(g.id)} />
                     ))}
                 </Carousel>
             )}

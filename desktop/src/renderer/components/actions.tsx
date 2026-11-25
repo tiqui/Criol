@@ -2,9 +2,9 @@ import type { Song } from '@shared/types';
 
 import i18n from '@/i18n';
 import type { Album, Artist } from '@/library/library';
-import { addToPlaylist, createPlaylist, deletePlaylist, isFavorite, libraryState, setFavorite, setRating, updatePlaylist } from '@/library/store';
+import { addToPlaylist, createPlaylist, deletePlaylist, isFavorite, libraryState, setFavorite, setRating, updatePlaylist, useIsFavorite, useLibrary } from '@/library/store';
 import { navigate, routes } from '@/lib/nav';
-import { addToQueue, playNext, playSongs, startRadio } from '@/player/store';
+import { addToQueue, playNext, playSongs, setFullscreen, startRadio, usePlayer } from '@/player/store';
 import type { Playlist } from '@/sources/types';
 import { settings } from '@/settings/store';
 
@@ -62,25 +62,42 @@ export interface SongMenuContext {
     index?: number;
 }
 
+/** Vai para uma página saindo do player em tela cheia (senão ela abre escondida atrás dele). */
+const goTo = (path: string) => {
+    setFullscreen(false);
+    navigate(path);
+};
+
 export function songMenuItems(song: Song, ctx: SongMenuContext = {}): MenuItem[] {
-    const fav = isFavorite('song', song.id);
     const artist = libraryState().library.artistByName(song.artists[0] || song.albumArtist || song.artist);
-    const items: MenuItem[] = [
-        { icon: 'mediaPlay', label: t('actions.play'), onSelect: () => (ctx.list ? playSongs(ctx.list, ctx.index ?? 0, { shuffle: false }) : playSongs([song], 0, { shuffle: false })) },
+    const { index, queue } = usePlayer.getState();
+    const isPlaying = queue[index]?.song.id === song.id;
+    const items: MenuItem[] = [];
+    // "Tocar" não faz sentido para a música que já está tocando.
+    if (!isPlaying) {
+        items.push({ icon: 'mediaPlay', label: t('actions.play'), onSelect: () => (ctx.list ? playSongs(ctx.list, ctx.index ?? 0, { shuffle: false }) : playSongs([song], 0, { shuffle: false })) });
+    }
+    items.push(
         { icon: 'queue', label: t('actions.playNext'), onSelect: () => playNext([song]) },
         { icon: 'list', label: t('actions.addToQueue'), onSelect: () => addToQueue([song]) },
         { icon: 'radio', label: t('actions.startRadio'), onSelect: () => startRadio(song) },
         { divider: true },
         { children: playlistSubmenu([song]), icon: 'addToPlaylist', label: t('actions.addToPlaylist') },
-        { icon: 'favorite', label: fav ? t('actions.unfavorite') : t('actions.favorite'), onSelect: () => setFavorite('song', song.id, !fav) },
-    ];
-    if (settings().showRatings) {
-        const rating = libraryState().user.ratings[song.id] || 0;
-        items.push({ custom: <RatingRow rating={rating} songId={song.id} /> });
-    }
+        {
+            icon: 'favorite',
+            keepOpen: true,
+            label: t('actions.favorite'),
+            onSelect: () => void setFavorite('song', song.id, !isFavorite('song', song.id)),
+            useLive: () => {
+                const fav = useIsFavorite('song', song.id);
+                return { filled: fav, label: fav ? t('actions.unfavorite') : t('actions.favorite') };
+            },
+        },
+    );
+    if (settings().showRatings) items.push({ custom: <RatingRow songId={song.id} /> });
     items.push({ divider: true });
-    items.push({ icon: 'album', label: t('actions.goToAlbum'), onSelect: () => navigate(routes.album(song.albumId)) });
-    if (artist) items.push({ icon: 'artist', label: t('actions.goToArtist'), onSelect: () => navigate(routes.artist(artist.id)) });
+    items.push({ icon: 'album', label: t('actions.goToAlbum'), onSelect: () => goTo(routes.album(song.albumId)) });
+    if (artist) items.push({ icon: 'artist', label: t('actions.goToArtist'), onSelect: () => goTo(routes.artist(artist.id)) });
     if (ctx.playlist && !ctx.playlist.readonly && ctx.playlistIndex !== undefined) {
         const playlist = ctx.playlist;
         const index = ctx.playlistIndex;
@@ -95,7 +112,9 @@ export function songMenuItems(song: Song, ctx: SongMenuContext = {}): MenuItem[]
     return items;
 }
 
-function RatingRow({ rating, songId }: { rating: number; songId: string }) {
+function RatingRow({ songId }: { songId: string }) {
+    // Lê a nota da store: muda na hora ao clicar nas estrelas, com o menu aberto.
+    const rating = useLibrary((s) => s.user.ratings[songId] || 0);
     return (
         <div style={{ alignItems: 'center', display: 'flex', gap: 12, justifyContent: 'space-between' }}>
             <span style={{ color: 'var(--fg-muted)', fontSize: 13 }}>{t('actions.rating')}</span>
@@ -131,9 +150,9 @@ export function openAlbumMenu(at: { x: number; y: number } | HTMLElement, album:
         ...songsMenuItems(album.songs),
         { icon: 'favorite', label: fav ? t('actions.unfavorite') : t('actions.favorite'), onSelect: () => setFavorite('album', album.id, !fav) },
         { divider: true },
-        { icon: 'album', label: t('actions.openAlbum'), onSelect: () => navigate(routes.album(album.id)) },
+        { icon: 'album', label: t('actions.openAlbum'), onSelect: () => goTo(routes.album(album.id)) },
     ];
-    if (artist) items.push({ icon: 'artist', label: t('actions.goToArtist'), onSelect: () => navigate(routes.artist(artist.id)) });
+    if (artist) items.push({ icon: 'artist', label: t('actions.goToArtist'), onSelect: () => goTo(routes.artist(artist.id)) });
     openMenu(at, items, { media: <Cover coverId={album.coverId} seed={album.id} size="sm" />, subtitle: album.artist, title: album.name });
 }
 
@@ -144,7 +163,7 @@ export function openArtistMenu(at: { x: number; y: number } | HTMLElement, artis
         { icon: 'radio', label: t('actions.startRadio'), onSelect: () => artist.songs[0] && startRadio(artist.songs[Math.floor(Math.random() * artist.songs.length)]) },
         { icon: 'favorite', label: fav ? t('actions.unfavorite') : t('actions.favorite'), onSelect: () => setFavorite('artist', artist.key, !fav) },
         { divider: true },
-        { icon: 'artist', label: t('actions.openArtist'), onSelect: () => navigate(routes.artist(artist.id)) },
+        { icon: 'artist', label: t('actions.openArtist'), onSelect: () => goTo(routes.artist(artist.id)) },
     ];
     openMenu(at, items, { media: <Cover coverId={artist.coverId} icon="user" round seed={artist.id} size="sm" />, subtitle: t('library.artist'), title: artist.name });
 }

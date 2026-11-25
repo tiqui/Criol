@@ -54,7 +54,7 @@ function SearchContent() {
                             <Link className={styles.genre} key={g.id} style={{ background: seedColor(g.key) }} to={routes.genre(g.id)}>
                                 <span>{g.name}</span>
                                 <div className={styles.genreCover}>
-                                    <Cover coverId={g.coverId} seed={g.id} size="sm" />
+                                    <Cover coverId={g.coverId} fallbackIds={g.coverIds} seed={g.id} size="sm" />
                                 </div>
                             </Link>
                         ))}

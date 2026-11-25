@@ -33,6 +33,8 @@ interface HeroProps {
     label?: string;
     title: string;
     coverId?: null | string;
+    /** Capas reserva (ex.: gêneros). */
+    coverIds?: string[];
     seed: string;
     round?: boolean;
     icon?: IconName;
@@ -45,14 +47,14 @@ interface HeroProps {
 }
 
 /** Cabeçalho das páginas de álbum, artista, playlist, mix... */
-export function Hero({ actions, color: fixedColor, coverId, description, icon, label, media, meta, round, seed, title }: HeroProps) {
+export function Hero({ actions, color: fixedColor, coverId, coverIds, description, icon, label, media, meta, round, seed, title }: HeroProps) {
     const coverColor = useHeaderColor(fixedColor ? null : coverId, seed);
     const color = fixedColor || coverColor;
     return (
         <header className={styles.hero} style={color ? { '--hero-color': color } as React.CSSProperties : undefined}>
             <div className={styles.heroInner}>
                 <div className={clsx(styles.heroMedia, round && styles.round)}>
-                    {media || <Cover coverId={coverId} icon={icon} round={round} seed={seed} size="lg" />}
+                    {media || <Cover coverId={coverId} fallbackIds={coverIds} icon={icon} round={round} seed={seed} size="lg" />}
                 </div>
                 <div className={styles.heroText}>
                     {label && <span className={styles.label}>{label}</span>}

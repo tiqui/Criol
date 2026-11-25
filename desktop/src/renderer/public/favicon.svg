@@ -1,16 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="18 18 72 72">
+  <!-- Ícone do Criol (o mesmo do app Android): área visível do ícone adaptável, cantos arredondados. -->
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#8b5cff"/>
-      <stop offset="0.55" stop-color="#5b6cff"/>
-      <stop offset="1" stop-color="#2f8cff"/>
-    </linearGradient>
-    <radialGradient id="glow" cx="0.3" cy="0.2" r="0.8">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
+    <clipPath id="tile">
+      <rect x="18" y="18" width="72" height="72" rx="17"/>
+    </clipPath>
   </defs>
-  <rect x="64" y="64" width="896" height="896" rx="208" fill="url(#bg)"/>
-  <rect x="64" y="64" width="896" height="896" rx="208" fill="url(#glow)"/>
-  <path transform="translate(114 14)" d="M660 236v344a118 118 0 1 1-64-105V368l-224 56v276a118 118 0 1 1-64-105V318z" fill="#ffffff"/>
+  <g clip-path="url(#tile)">
+    <path fill="#0c0c0c" d="M0,0h108v108h-108z"/>
+    <path fill="#14182a" d="M0,108 L108,108 L108,30 C80,60 40,80 0,84 Z"/>
+    <path fill="none" stroke="#3574fc" stroke-width="9" stroke-linecap="round" d="M69.56,38.44 A22,22 0 1,0 69.56,69.56"/>
+    <circle cx="54" cy="54" r="6.5" fill="#e1e1e1"/>
+  </g>
 </svg>
