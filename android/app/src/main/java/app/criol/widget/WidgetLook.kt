@@ -3,6 +3,7 @@ package app.criol.widget
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.ColorUtils
 import app.criol.Graph
+import app.criol.ui.theme.Daylight
 import app.criol.ui.theme.paletteFor
 
 /**
@@ -22,7 +23,9 @@ data class WidgetLook(
     companion object {
         fun current(): WidgetLook {
             val s = runCatching { Graph.settings.value }.getOrNull()
-            val p = paletteFor(s?.themeId ?: "default-dark")
+            val themeId = s?.themeId ?: "default-dark"
+            // Segue o dia junto com o app: a cor é a do momento em que o widget é desenhado.
+            val p = if (s?.themeFollowsDay == true) Daylight.palette(themeId, Daylight.minuteNow()) else paletteFor(themeId)
             val bg = p.background.toArgb()
             val fg = p.foreground.toArgb()
             return WidgetLook(

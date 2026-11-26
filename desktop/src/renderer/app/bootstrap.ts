@@ -7,6 +7,7 @@ import { startTracking } from '@/player/tracker';
 import { settings, useSettings } from '@/settings/store';
 import { ensureBase, selectBase } from '@/sources/endpoint';
 import { getActiveConfig, migrateOldSources, useSources } from '@/sources/store';
+import { resolvePalette } from '@/styles/daylight';
 import { applyTheme } from '@/styles/themes';
 
 /** Liga tudo o que roda fora dos componentes: tema, idioma, player, histórico, biblioteca. */
@@ -16,15 +17,21 @@ export function bootstrap() {
     // Tema e idioma acompanham as configurações.
     const applyLook = () => {
         const s = settings();
-        applyTheme(s.themeId, s.accent);
+        applyTheme(resolvePalette(s.themeId, s.themeFollowsDay), s.accent);
         const lang = resolveLanguage(s.language);
         if (i18n.language !== lang) void i18n.changeLanguage(lang);
         document.documentElement.lang = lang;
     };
     applyLook();
     useSettings.subscribe((s, prev) => {
-        if (s.themeId !== prev.themeId || s.accent !== prev.accent || s.language !== prev.language) applyLook();
+        if (s.themeId !== prev.themeId || s.accent !== prev.accent || s.language !== prev.language || s.themeFollowsDay !== prev.themeFollowsDay) {
+            applyLook();
+        }
     });
+    // Tema seguindo o dia: acompanha o relógio a cada minuto (e ao voltar para a janela).
+    const followClock = () => settings().themeFollowsDay && applyTheme(resolvePalette(settings().themeId, true), settings().accent);
+    setInterval(followClock, 60 * 1000);
+    document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && followClock());
 
     attachEngine();
     startTracking();

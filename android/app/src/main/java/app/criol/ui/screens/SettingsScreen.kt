@@ -227,6 +227,13 @@ fun SettingsScreen(onAddFolder: () -> Unit) {
                     }
                 }
             }
+            item {
+                SwitchRow(
+                    "Seguir o dia",
+                    "Clara de manhã, vai escurecendo à tarde até ficar escura à noite. O tema escolhido acima é uma das pontas.",
+                    settings.themeFollowsDay,
+                ) { Graph.settings.update { s -> s.copy(themeFollowsDay = it) } }
+            }
             item { Label("Cor de destaque") }
             item {
                 FlowRow(

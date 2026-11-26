@@ -8,6 +8,8 @@ export type Language = 'en' | 'pt-BR' | 'system';
 
 export interface Settings {
     themeId: string;
+    /** Claro de dia e escuro à noite, mudando aos poucos (styles/daylight.ts). */
+    themeFollowsDay: boolean;
     /** Cor de destaque personalizada; null = cor do tema. */
     accent: null | string;
     language: Language;
@@ -76,6 +78,7 @@ export const DEFAULT_SETTINGS: Settings = {
     skipForwardSeconds: 30,
     songSort: 'title',
     songSortDesc: false,
+    themeFollowsDay: false,
     themeId: 'default-dark',
 };
 

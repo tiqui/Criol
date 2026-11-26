@@ -1,10 +1,11 @@
 import clsx from 'clsx';
-import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { type ReactNode, type RefObject, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { create } from 'zustand';
 
 import { Icon, type IconName } from './icon';
 import styles from './menu.module.css';
+import { type Box, placeMenu, type Placement, toBox } from './menu-position';
 
 export interface MenuItem {
     label?: string;
@@ -32,32 +33,50 @@ interface MenuHeader {
 
 interface MenuState {
     open: boolean;
-    x: number;
-    y: number;
+    placement: Placement;
     items: MenuItem[];
     header?: MenuHeader;
 }
 
-const useMenu = create<MenuState>()(() => ({ items: [], open: false, x: 0, y: 0 }));
+const useMenu = create<MenuState>()(() => ({ items: [], open: false, placement: { kind: 'point', x: 0, y: 0 } }));
 
 export const closeMenu = () => useMenu.setState({ open: false });
 
 /** Abre um menu no ponto (clique direito) ou abaixo de um elemento (botão "..."). */
 export function openMenu(at: { x: number; y: number } | HTMLElement, items: MenuItem[], header?: MenuHeader) {
-    let x: number;
-    let y: number;
-    if (at instanceof HTMLElement) {
-        const rect = at.getBoundingClientRect();
-        x = rect.right;
-        y = rect.bottom + 4;
-    } else {
-        x = at.x;
-        y = at.y;
-    }
-    useMenu.setState({ header, items: items.filter(Boolean), open: true, x, y });
+    const placement: Placement =
+        at instanceof HTMLElement ? { anchor: toBox(at.getBoundingClientRect()), kind: 'below' } : { kind: 'point', x: at.x, y: at.y };
+    useMenu.setState({ header, items: items.filter(Boolean), open: true, placement });
 }
 
 const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
+
+/** Põe o elemento na posição que cabe na janela, antes de ele aparecer na tela. */
+function usePlacement(ref: RefObject<HTMLElement | null>, placement: Placement | null, deps: unknown[]) {
+    useLayoutEffect(() => {
+        const el = ref.current;
+        if (!el || !placement) return;
+        const { left, top } = placeMenu(
+            { height: el.offsetHeight, width: el.offsetWidth },
+            { height: window.innerHeight, width: window.innerWidth },
+            placement,
+        );
+        el.style.left = `${left}px`;
+        el.style.top = `${top}px`;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, deps);
+}
+
+/** Submenu em posição fixa, ao lado do item que o abriu (vira para a esquerda se não couber). */
+function SubMenu({ anchor, depth, items }: { anchor: Box; depth: number; items: MenuItem[] }) {
+    const ref = useRef<HTMLDivElement>(null);
+    usePlacement(ref, { anchor, kind: 'side' }, [anchor, items]);
+    return (
+        <div className={styles.submenu} ref={ref}>
+            <MenuList depth={depth} items={items} />
+        </div>
+    );
+}
 
 /** Item cujo rótulo e ícone acompanham o estado (ex.: Favoritar / Remover dos favoritos). */
 function LiveItem({ item, onHover }: { item: MenuItem; onHover: () => void }) {
@@ -81,7 +100,7 @@ function LiveItem({ item, onHover }: { item: MenuItem; onHover: () => void }) {
 }
 
 function MenuList({ depth = 0, items, onBack }: { items: MenuItem[]; depth?: number; onBack?: () => void }) {
-    const [sub, setSub] = useState<null | { items: MenuItem[]; top: number }>(null);
+    const [sub, setSub] = useState<null | { items: MenuItem[]; anchor: Box }>(null);
     const [mobileSub, setMobileSub] = useState<MenuItem[] | null>(null);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -108,7 +127,7 @@ function MenuList({ depth = 0, items, onBack }: { items: MenuItem[]; depth?: num
                         onClick={(e) => {
                             if (hasChildren) {
                                 if (isMobile()) setMobileSub(item.children!);
-                                else setSub(sub ? null : { items: item.children!, top: (e.currentTarget as HTMLElement).offsetTop });
+                                else setSub(sub ? null : { anchor: toBox(e.currentTarget.getBoundingClientRect()), items: item.children! });
                                 return;
                             }
                             if (!item.keepOpen) closeMenu();
@@ -116,7 +135,7 @@ function MenuList({ depth = 0, items, onBack }: { items: MenuItem[]; depth?: num
                         }}
                         onMouseEnter={(e) => {
                             if (isMobile()) return;
-                            if (hasChildren) setSub({ items: item.children!, top: (e.currentTarget as HTMLElement).offsetTop });
+                            if (hasChildren) setSub({ anchor: toBox(e.currentTarget.getBoundingClientRect()), items: item.children! });
                             else setSub(null);
                         }}
                         role="menuitem"
@@ -129,33 +148,23 @@ function MenuList({ depth = 0, items, onBack }: { items: MenuItem[]; depth?: num
                     </button>
                 );
             })}
-            {sub && (
-                <div className={styles.submenu} style={{ top: sub.top - 6 }}>
-                    <MenuList depth={depth + 1} items={sub.items} />
-                </div>
-            )}
+            {sub && <SubMenu anchor={sub.anchor} depth={depth + 1} items={sub.items} />}
         </div>
     );
 }
 
 export function MenuHost() {
-    const { header, items, open, x, y } = useMenu();
+    const { header, items, open, placement } = useMenu();
     const ref = useRef<HTMLDivElement>(null);
-    const [pos, setPos] = useState({ left: x, top: y });
     const mobile = open && isMobile();
 
-    useLayoutEffect(() => {
-        if (!open || mobile || !ref.current) return;
-        const rect = ref.current.getBoundingClientRect();
-        const left = Math.max(8, Math.min(x - (x === rect.right ? rect.width : 0), window.innerWidth - rect.width - 8));
-        const top = y + rect.height > window.innerHeight - 8 ? Math.max(8, y - rect.height) : y;
-        setPos({ left: x + rect.width > window.innerWidth - 8 ? Math.max(8, x - rect.width) : left, top });
-    }, [open, x, y, mobile, items]);
+    usePlacement(ref, open && !mobile ? placement : null, [open, placement, mobile, items, header]);
 
     useEffect(() => {
         if (!open) return;
         const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeMenu();
-        const onScroll = () => !isMobile() && closeMenu();
+        // Rolar dentro do menu (lista longa) não fecha; rolar a página fecha.
+        const onScroll = (e: WheelEvent) => !isMobile() && !ref.current?.contains(e.target as Node) && closeMenu();
         window.addEventListener('keydown', onKey);
         window.addEventListener('resize', closeMenu);
         window.addEventListener('wheel', onScroll, { passive: true });
@@ -170,7 +179,7 @@ export function MenuHost() {
 
     return createPortal(
         <div className={clsx(styles.backdrop, mobile && styles.backdropMobile)} onContextMenu={(e) => { e.preventDefault(); closeMenu(); }} onPointerDown={(e) => e.target === e.currentTarget && closeMenu()}>
-            <div className={clsx(styles.menu, mobile && styles.sheet)} ref={ref} style={mobile ? undefined : { left: pos.left, top: pos.top }}>
+            <div className={clsx(styles.menu, mobile && styles.sheet)} ref={ref}>
                 {mobile && <div className={styles.handle} />}
                 {header && (
                     <div className={styles.header}>

@@ -16,6 +16,8 @@ data class Settings(
     val themeId: String = "default-dark",
     /** Cor de destaque personalizada (ARGB). null = cor do tema. */
     val accent: Int? = null,
+    /** Interface clara de dia e escura à noite, mudando aos poucos (ver Daylight). */
+    val themeFollowsDay: Boolean = false,
     val dynamicPlayerBackground: Boolean = true,
     val playerBlur: Boolean = true,
     val skipBackSeconds: Int = 10,

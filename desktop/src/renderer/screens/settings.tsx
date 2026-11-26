@@ -147,6 +147,9 @@ function AppearanceSection() {
                         </button>
                     ))}
                 </div>
+                <Row description={t('settings.appearance.followDayHint')} title={t('settings.appearance.followDay')}>
+                    <Switch checked={s.themeFollowsDay} onChange={(v) => s.set({ themeFollowsDay: v })} />
+                </Row>
             </Group>
             <Group title={t('settings.appearance.accent')}>
                 <div className={styles.swatches}>

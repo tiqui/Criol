@@ -16,6 +16,7 @@ import app.criol.playback.PlayerController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
@@ -47,7 +48,14 @@ class CriolApp : Application() {
         val refreshWidgets: suspend (Any?) -> Unit = { WidgetController.refresh(this) }
         scope.launch { player.state.map { it.shuffled }.distinctUntilChanged().drop(1).collect(refreshWidgets) }
         scope.launch {
-            settings.settings.map { it.themeId to it.accent }.distinctUntilChanged().drop(1).collect(refreshWidgets)
+            settings.settings.map { Triple(it.themeId, it.accent, it.themeFollowsDay) }.distinctUntilChanged().drop(1).collect(refreshWidgets)
+        }
+        // Tema seguindo o dia: enquanto o app está vivo, os widgets acompanham a cada 15 min.
+        scope.launch {
+            while (true) {
+                delay(15 * 60_000L)
+                if (settings.value.themeFollowsDay) WidgetController.refresh(this@CriolApp)
+            }
         }
     }
 }

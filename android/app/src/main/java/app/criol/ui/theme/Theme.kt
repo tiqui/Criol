@@ -117,8 +117,9 @@ private val typography = Typography().let { t ->
 }
 
 @Composable
-fun CriolTheme(themeId: String, accent: Int?, content: @Composable () -> Unit) {
-    val base = paletteFor(themeId)
+fun CriolTheme(themeId: String, accent: Int?, followDay: Boolean = false, content: @Composable () -> Unit) {
+    val minute = rememberMinuteOfDay(followDay)
+    val base = if (followDay) Daylight.palette(themeId, minute) else paletteFor(themeId)
     val palette = if (accent != null) base.copy(primary = Color(accent)) else base
     CompositionLocalProvider(LocalPalette provides palette) {
         MaterialTheme(colorScheme = schemeFrom(palette), typography = typography, content = content)

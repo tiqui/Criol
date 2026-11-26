@@ -2,6 +2,23 @@
 
 As mudanças de cada versão do Criol para desktop e web.
 
+## [2.1.2] - 2026-11-26
+
+### Adicionado
+
+- Tema que segue o dia (Configurações → Aparência → Seguir o dia): a interface fica clara de
+  manhã, vai escurecendo durante a tarde e fica escura à noite, clareando de novo ao amanhecer.
+  O tema escolhido é uma das pontas (um tema escuro vira o da noite; um claro, o do dia). A conta
+  é a mesma do Criol Android, então as duas versões mudam juntas.
+
+### Corrigido
+
+- Menus e submenus saíam da janela: agora viram para o outro lado ou sobem quando não cabem
+  (ex.: "Adicionar à playlist" perto da borda direita, "Velocidade" e "Timer de sono" perto de
+  baixo). Listas longas rolam dentro do menu.
+- A aba do navegador continuava com o ícone antigo: o ícone agora é carregado com a versão no
+  endereço e o servidor do Docker pede para o navegador sempre conferir.
+
 ## [2.1.1] - 2026-11-25
 
 ### Mudado

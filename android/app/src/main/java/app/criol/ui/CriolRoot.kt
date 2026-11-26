@@ -103,7 +103,7 @@ private val tabs = listOf(
 @Composable
 fun CriolRoot(openPlayerSignal: Int) {
     val settings by Graph.settings.settings.collectAsState()
-    CriolTheme(settings.themeId, settings.accent) {
+    CriolTheme(settings.themeId, settings.accent, settings.themeFollowsDay) {
         val navController = rememberNavController()
         val sheets = remember { SheetController() }
         val playerOpen = rememberSaveable { mutableStateOf(false) }

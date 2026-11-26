@@ -71,8 +71,7 @@ const rgba = (hex: string, alpha: number) => {
 };
 
 /** Aplica o tema nas variáveis CSS do documento. */
-export const applyTheme = (themeId: string, accent: null | string) => {
-    const palette = paletteFor(themeId);
+export const applyTheme = (palette: Palette, accent: null | string) => {
     const primary = accent || palette.primary;
     const root = document.documentElement;
     const vars: Record<string, string> = {

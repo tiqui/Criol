@@ -411,6 +411,8 @@
             "coverColors": "Headers in the cover color",
             "coverColorsHint": "Albums, artists and playlists take the tone of their cover.",
             "custom": "Pick a color",
+            "followDay": "Follow the day",
+            "followDayHint": "Light in the morning, gradually darker through the afternoon, dark at night. The theme picked above is one of the ends.",
             "language": "Language",
             "playerBlur": "Blurred cover in the player",
             "playerBlurHint": "Full-screen player background with the song cover.",

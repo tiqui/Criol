@@ -416,6 +416,8 @@
             "coverColors": "Cabeçalhos com a cor da capa",
             "coverColorsHint": "Álbuns, artistas e playlists ganham o tom da capa.",
             "custom": "Escolher cor",
+            "followDay": "Seguir o dia",
+            "followDayHint": "Clara de manhã, vai escurecendo à tarde até ficar escura à noite. O tema escolhido acima é uma das pontas.",
             "language": "Idioma",
             "playerBlur": "Capa desfocada no player",
             "playerBlurHint": "Fundo do player em tela cheia com a capa da música.",
