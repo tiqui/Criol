@@ -28,6 +28,7 @@ data class ScanProgress(val phase: String, val done: Int, val total: Int)
  */
 class LibraryScanner(private val context: Context) {
     private val cr = context.contentResolver
+    val mediaStore = MediaStoreIndex(context)
     val artDir = File(context.filesDir, "art").apply { mkdirs() }
 
     private data class AudioFile(
@@ -85,6 +86,12 @@ class LibraryScanner(private val context: Context) {
         val done = AtomicInteger()
         val now = System.currentTimeMillis()
         onProgress(ScanProgress("Lendo metadados", 0, total))
+        // Tags do índice do Android numa consulta só (com permissão). Só para arquivos novos/alterados.
+        val needsTags = files.any { f ->
+            val prev = prevByUri[f.uri.toString()]
+            prev == null || prev.lastModified != f.lastModified || prev.size != f.size
+        }
+        val index = if (needsTags) mediaStore.load() else emptyMap()
 
         val workers = Dispatchers.IO.limitedParallelism(4)
         val songs = coroutineScope {
@@ -96,7 +103,8 @@ class LibraryScanner(private val context: Context) {
                     val song = if (prev != null && prev.lastModified == f.lastModified && prev.size == f.size) {
                         prev.copy(folder = f.folder, rootUri = f.rootUri)
                     } else {
-                        readSong(f, prev, info, now, artColors, artClaimed)
+                        val row = MediaStoreIndex.keyFor(f.uri)?.let(index::get)?.takeIf { it.matches(f.size, f.lastModified) }
+                        if (row != null) songFromIndex(f, row, prev, now) else readSong(f, prev, info, now, artColors, artClaimed)
                     }
                     val n = done.incrementAndGet()
                     if (n % 25 == 0 || n == total) onProgress(ScanProgress("Lendo metadados", n, total))
@@ -234,9 +242,7 @@ class LibraryScanner(private val context: Context) {
                 k(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE)?.toIntOrNull() ?: 0
             } else 0
 
-            val albumKey = album.normalizeForSearch() + "|" +
-                albumArtist.normalizeForSearch().ifBlank { f.folder.lowercase() }
-            val albumId = hashId(albumKey)
+            val albumId = albumIdFor(album, albumArtist, f.folder)
 
             // Capa embutida, só quando a pasta não tem imagem própria.
             if (info?.let(::pickCover) == null && albumId !in artColors && artClaimed.add(albumId)) {
@@ -275,6 +281,42 @@ class LibraryScanner(private val context: Context) {
             runCatching { mmr.release() }
         }
     }
+
+    /**
+     * Música montada com as tags do índice do Android, sem abrir o arquivo. Mesmas regras de
+     * [readSong] (título pelo nome do arquivo, álbum pela pasta...). A capa embutida, se a pasta
+     * não tiver imagem, é extraída depois, uma vez por álbum.
+     */
+    private fun songFromIndex(f: AudioFile, r: MediaStoreIndex.Row, prev: Song?, now: Long): Song {
+        val albumArtist = r.albumArtist ?: ""
+        val album = r.album ?: f.folder.substringAfterLast('/')
+        return Song(
+            id = hashId(f.uri.toString()),
+            uri = f.uri.toString(),
+            rootUri = f.rootUri,
+            title = r.title ?: f.name.substringBeforeLast('.'),
+            artist = r.artist ?: albumArtist.ifBlank { "Artista desconhecido" },
+            albumArtist = albumArtist,
+            album = album,
+            albumId = albumIdFor(album, albumArtist, f.folder),
+            genre = normalizeGenre(r.genre),
+            year = r.year.takeIf { it in 1000..2999 } ?: 0,
+            track = r.track,
+            disc = r.disc,
+            durationMs = r.durationMs,
+            folder = f.folder,
+            fileName = f.name,
+            size = f.size,
+            lastModified = f.lastModified,
+            dateAdded = prev?.dateAdded ?: f.lastModified.takeIf { it > 0 } ?: now,
+            mime = r.mime ?: f.mime,
+            bitrate = r.bitrate,
+            composer = r.composer ?: "",
+        )
+    }
+
+    private fun albumIdFor(album: String, albumArtist: String, folder: String): String =
+        hashId(album.normalizeForSearch() + "|" + albumArtist.normalizeForSearch().ifBlank { folder.lowercase() })
 
     private fun embeddedPicture(uri: Uri): ByteArray? {
         val mmr = MediaMetadataRetriever()

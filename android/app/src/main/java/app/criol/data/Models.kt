@@ -48,6 +48,10 @@ data class LibraryCache(
     /** Álbuns cuja capa já foi procurada sem sucesso. */
     val noArt: Set<String> = emptySet(),
     val scannedAt: Long = 0,
+    /** Contadores de mudança do Android no início da última leitura (ver [MediaStoreIndex.generations]). */
+    val generations: Map<String, Long> = emptyMap(),
+    /** Pastas e filtros usados na última leitura; se mudarem, é preciso ler de novo. */
+    val scanKey: String = "",
 ) {
     companion object {
         const val CACHE_VERSION = 2
@@ -124,8 +128,12 @@ data class QueueSnapshot(
     val songIds: List<String> = emptyList(),
     val index: Int = 0,
     val positionMs: Long = 0,
+    /** songIds fica na ordem física; no aleatório, [shuffleOrder] diz a ordem de tocar. */
     val shuffled: Boolean = false,
+    /** Formato antigo (aleatório reordenava a fila): só serve para reconhecer filas antigas. */
     val originalOrder: List<String> = emptyList(),
+    /** Índices de songIds na ordem em que tocam (só no aleatório). */
+    val shuffleOrder: List<Int> = emptyList(),
     val repeatMode: Int = 0,
     val speed: Float = 1f,
     /** Semente do "Rádio da música", se a fila salva era um rádio. */
@@ -139,9 +147,25 @@ fun hashId(value: String): String {
 
 private val accentRegex = Regex("\\p{Mn}+")
 
-/** Normaliza para busca: minúsculas e sem acentos. */
-fun String.normalizeForSearch(): String =
-    Normalizer.normalize(lowercase(), Normalizer.Form.NFD).replace(accentRegex, "")
+private val normalizedCache = java.util.concurrent.ConcurrentHashMap<String, String>()
+
+/**
+ * Normaliza para busca: minúsculas e sem acentos.
+ *
+ * É chamada milhares de vezes (montar a biblioteca, ordenar listas, busca, mixes, rádio).
+ * Texto só ASCII não tem acento, então basta o lowercase; o resto (Normalizer + regex, caro)
+ * fica guardado, já que nomes de artista/álbum/gênero se repetem muito.
+ */
+fun String.normalizeForSearch(): String {
+    var ascii = true
+    for (ch in this) if (ch.code >= 0x80) { ascii = false; break }
+    if (ascii) return lowercase()
+    normalizedCache[this]?.let { return it }
+    val out = Normalizer.normalize(lowercase(), Normalizer.Form.NFD).replace(accentRegex, "")
+    if (normalizedCache.size > 50_000) normalizedCache.clear()
+    normalizedCache[this] = out
+    return out
+}
 
 private val artistSeparators = Regex(";|\u0000|\\s+/\\s+")
 

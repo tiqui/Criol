@@ -43,6 +43,8 @@ data class Settings(
     val autoDjOnlySimilar: Boolean = false,
     /** Registra o histórico de escuta (perfil, daylist, mixes e resumos mensais). */
     val recordHistory: Boolean = true,
+    /** Já pedimos a permissão de ler músicas (leitura rápida)? Para não insistir. */
+    val mediaPermissionAsked: Boolean = false,
 )
 
 class SettingsStore(context: Context) {

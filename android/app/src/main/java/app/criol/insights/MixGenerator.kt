@@ -69,7 +69,7 @@ class MixGenerator(
     private val heard: Set<String> = entries.mapTo(HashSet()) { it.songId }
     private val genreIndex = library.genres.associateBy { it.name.normalizeForSearch() }
 
-    /** As músicas mais tocadas, pelas contagens de reprodução do Criol. */
+    /** Equivalente às "mais tocadas do servidor" no Crify: as contagens de reprodução do Criol. */
     private val topPlayed: List<Song> by lazy {
         library.songs.filter { (userData.playCounts[it.id] ?: 0) > 0 }
             .sortedByDescending { userData.playCounts[it.id] ?: 0 }

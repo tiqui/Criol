@@ -223,7 +223,7 @@ private fun MediaRowMosaic(arts: List<String?>, title: String, subtitle: String,
 fun PlaylistScreen(id: String) {
     val lib by Graph.library.library.collectAsState()
     val data by Graph.userData.data.collectAsState()
-    val player by Graph.player.state.collectAsState()
+    val currentId by Graph.player.currentId.collectAsState()
     val nav = LocalNavigator.current
     val sheets = LocalSheets.current
     val auto = autoPlaylists.firstOrNull { it.id == id }
@@ -312,7 +312,7 @@ fun PlaylistScreen(id: String) {
                 artPath = lib.artPath(s.albumId),
                 onClick = { Graph.player.playSongs(songs, i) },
                 onMore = { sheets.show(Sheet.SongMenu(s, playlistId = playlist?.id, playlistIndex = origIndex.takeIf { playlist != null })) },
-                isCurrent = player.current?.id == s.id,
+                isCurrent = currentId == s.id,
                 isFavorite = s.id in data.favoriteSongs,
                 modifier = if (playlist != null) Modifier.reorderItem(reorder, i) else Modifier,
                 trailing = if (playlist != null) {

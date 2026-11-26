@@ -232,7 +232,7 @@ fun MixScreen(id: String) {
     val busy by Graph.mixes.busy.collectAsState()
     val lib by Graph.library.library.collectAsState()
     val data by Graph.userData.data.collectAsState()
-    val player by Graph.player.state.collectAsState()
+    val currentId by Graph.player.currentId.collectAsState()
     val nav = LocalNavigator.current
     val sheets = LocalSheets.current
     val context = LocalContext.current
@@ -358,7 +358,7 @@ fun MixScreen(id: String) {
                 artPath = lib.artPath(s.albumId),
                 onClick = { Graph.player.playSongs(songs, i) },
                 onMore = { sheets.show(Sheet.SongMenu(s)) },
-                isCurrent = player.current?.id == s.id,
+                isCurrent = currentId == s.id,
                 isFavorite = s.id in data.favoriteSongs,
             )
         }

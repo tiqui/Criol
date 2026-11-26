@@ -8,7 +8,10 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
+import android.os.Bundle
+import androidx.media3.common.C
 import androidx.media3.session.MediaController
+import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionToken
 import app.criol.data.LibraryRepository
 import app.criol.data.QueueSnapshot
@@ -31,7 +34,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -79,8 +85,25 @@ class PlayerController(
     private val _position = MutableStateFlow(0L)
     val position: StateFlow<Long> = _position.asStateFlow()
 
-    private var originalOrder: List<String> = emptyList()
-    private var shuffled = false
+    /**
+     * Só o id da música atual. As listas usam isto para marcar a faixa tocando: assim não
+     * recompõem a cada play/pause, buffering ou mudança de velocidade.
+     */
+    val currentId: StateFlow<String?> = _state.map { it.current?.id }
+        .stateIn(scope, SharingStarted.Eagerly, null)
+
+    /** Gravações em disco em ordem, uma de cada vez. */
+    private val io = Dispatchers.IO.limitedParallelism(1)
+    private var lastSavedQueue: QueueSnapshot? = null
+
+    /**
+     * A fila na tela segue a ordem de reprodução. No aleatório ela difere da fila física do
+     * player: [order] leva da posição na tela para o índice físico, e [displayOf] faz o caminho
+     * de volta.
+     */
+    private var order = IntArray(0)
+    private var displayOf = IntArray(0)
+    private var physicalIds: List<String> = emptyList()
     private var radioSeed: Song? = null
     private var counted = false
     private var listenedMs = 0L
@@ -142,7 +165,12 @@ class PlayerController(
 
     private val listener = object : Player.Listener {
         override fun onEvents(player: Player, events: Player.Events) {
-            if (events.containsAny(Player.EVENT_TIMELINE_CHANGED, Player.EVENT_MEDIA_ITEM_TRANSITION)) {
+            if (events.containsAny(
+                    Player.EVENT_TIMELINE_CHANGED,
+                    Player.EVENT_MEDIA_ITEM_TRANSITION,
+                    Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
+                )
+            ) {
                 refreshQueue()
             }
             refreshFlags()
@@ -168,13 +196,50 @@ class PlayerController(
     private fun refreshQueue() {
         val c = controller ?: return
         val lib = library.current
-        val songs = (0 until c.mediaItemCount).map { i ->
+        val n = c.mediaItemCount
+        val physical = (0 until n).map { i ->
             val item = c.getMediaItemAt(i)
             lib.songsById[item.mediaId] ?: stubSong(item)
         }
-        _state.update { it.copy(queue = songs, index = c.currentMediaItemIndex) }
+        physicalIds = physical.map { it.id }
+        setOrder(playOrder(c, n))
+        _state.update { it.copy(queue = order.map { physical[it] }, index = displayIndex(c.currentMediaItemIndex)) }
         maybeAutoDj()
     }
+
+    /** Ordem de reprodução segundo o player (no aleatório, a ordem sorteada pelo serviço). */
+    private fun playOrder(c: MediaController, n: Int): IntArray {
+        if (!c.shuffleModeEnabled || n == 0) return IntArray(n) { it }
+        val t = c.currentTimeline
+        if (t.windowCount != n) return IntArray(n) { it }
+        val out = IntArray(n)
+        var count = 0
+        var i = t.getFirstWindowIndex(true)
+        while (i != C.INDEX_UNSET && count < n) {
+            out[count++] = i
+            i = t.getNextWindowIndex(i, Player.REPEAT_MODE_OFF, true)
+        }
+        return if (count == n) out else IntArray(n) { it }
+    }
+
+    private fun setOrder(newOrder: IntArray) {
+        order = newOrder
+        displayOf = IntArray(newOrder.size).also { inv -> newOrder.forEachIndexed { d, p -> inv[p] = d } }
+    }
+
+    private fun displayIndex(physical: Int): Int = displayOf.getOrElse(physical) { physical }
+
+    private fun physicalIndex(display: Int): Int = order.getOrElse(display) { display }
+
+    private fun command(action: String, args: Bundle = Bundle.EMPTY) {
+        controller?.sendCustomCommand(SessionCommand(action, Bundle.EMPTY), args)
+    }
+
+    private fun insertHint(mode: Int) =
+        command(PlaybackService.CMD_INSERT_HINT, Bundle().apply { putInt(PlaybackService.ARG_INSERT, mode) })
+
+    private fun setShuffleOrder(playOrder: List<Int>) =
+        command(PlaybackService.CMD_SET_SHUFFLE_ORDER, Bundle().apply { putIntArray(PlaybackService.ARG_ORDER, playOrder.toIntArray()) })
 
     // ------------------------------------------------------------------
     // Auto DJ
@@ -290,15 +355,16 @@ class PlayerController(
 
     private fun refreshFlags() {
         val c = controller ?: return
-        val current = _state.value.queue.getOrNull(c.currentMediaItemIndex)
+        val index = displayIndex(c.currentMediaItemIndex)
+        val current = _state.value.queue.getOrNull(index)
         val dur = c.duration.takeIf { it > 0 } ?: current?.durationMs ?: 0
         _state.update {
             it.copy(
-                index = c.currentMediaItemIndex,
+                index = index,
                 isPlaying = c.isPlaying,
                 isBuffering = c.playbackState == Player.STATE_BUFFERING,
                 durationMs = dur,
-                shuffled = shuffled,
+                shuffled = c.shuffleModeEnabled,
                 repeatMode = c.repeatMode,
                 speed = c.playbackParameters.speed,
             )
@@ -381,17 +447,25 @@ class PlayerController(
         val c = controller ?: return
         lastSave = System.currentTimeMillis()
         savePendingListen()
-        val snap = QueueSnapshot(
-            songIds = (0 until c.mediaItemCount).map { c.getMediaItemAt(it).mediaId },
-            index = c.currentMediaItemIndex,
-            positionMs = c.currentPosition,
-            shuffled = shuffled,
-            originalOrder = originalOrder,
+        // Ids e ordem já estão guardados de refreshQueue: nada de percorrer o controller item a item.
+        val ids = physicalIds
+        val index = c.currentMediaItemIndex
+        val position = c.currentPosition
+        queueStore.savePosition(index, position, ids.size)
+        val shuffle = c.shuffleModeEnabled && order.size == ids.size
+        val queue = QueueSnapshot(
+            songIds = ids,
+            shuffled = shuffle,
+            shuffleOrder = if (shuffle) order.toList() else emptyList(),
             repeatMode = c.repeatMode,
             speed = c.playbackParameters.speed,
             radioSeedId = radioSeed?.id,
         )
-        scope.launch(Dispatchers.IO) { queueStore.save(snap) }
+        // A lista inteira só é regravada quando mudou de verdade.
+        if (queue == lastSavedQueue) return
+        lastSavedQueue = queue
+        val snap = queue.copy(index = index, positionMs = position)
+        scope.launch(io) { queueStore.save(snap) }
     }
 
     private fun restoreIfNeeded(c: MediaController): Job =
@@ -401,7 +475,7 @@ class PlayerController(
                 refreshQueue()
                 return@launch
             }
-            val snap = withContext(Dispatchers.IO) { queueStore.load() } ?: return@launch
+            val snap = withContext(io) { queueStore.load() } ?: return@launch
             c.repeatMode = snap.repeatMode
             if (snap.speed > 0) c.playbackParameters = PlaybackParameters(snap.speed)
             if (!settings.value.resumeQueue) return@launch
@@ -410,10 +484,18 @@ class PlayerController(
             if (pairs.isEmpty()) return@launch
             val newIndex = pairs.indexOfFirst { it.first >= snap.index }.coerceAtLeast(0)
             val samePos = pairs.getOrNull(newIndex)?.first == snap.index
-            shuffled = snap.shuffled
-            originalOrder = snap.originalOrder.filter { it in lib.songsById }
             snap.radioSeedId?.let { lib.songsById[it] }?.let(::setRadio)
             c.setMediaItems(pairs.map { it.second.toMediaItem() }, newIndex, if (samePos) snap.positionMs else 0)
+            // Filas antigas (aleatório reordenando a fila) já estão na ordem de tocar: voltam sem aleatório.
+            if (snap.shuffled && snap.shuffleOrder.size == snap.songIds.size) {
+                val newIndexOf = IntArray(snap.songIds.size) { -1 }
+                pairs.forEachIndexed { newI, (oldI, _) -> newIndexOf[oldI] = newI }
+                val playOrder = snap.shuffleOrder.map { newIndexOf.getOrElse(it) { -1 } }.filter { it >= 0 }
+                c.shuffleModeEnabled = true
+                setShuffleOrder(playOrder)
+            } else if (c.shuffleModeEnabled) {
+                c.shuffleModeEnabled = false
+            }
             c.prepare()
             refreshQueue()
             refreshFlags()
@@ -430,20 +512,14 @@ class PlayerController(
         if (songs.isEmpty()) return
         withController { c ->
             setRadio(radio)
-            val list: List<Song>
-            val start: Int
+            // No aleatório a lista entra na ordem original e o player sorteia a ordem de tocar,
+            // começando por uma música qualquer. Desligar o aleatório depois volta à ordem original.
+            val start = if (shuffle) songs.indices.random() else startIndex.coerceIn(0, songs.lastIndex)
+            if (!shuffle && c.shuffleModeEnabled) c.shuffleModeEnabled = false
+            c.setMediaItems(songs.map { it.toMediaItem() }, start, 0)
             if (shuffle) {
-                list = songs.shuffled()
-                start = 0
-                originalOrder = songs.map { it.id }
-                shuffled = true
-            } else {
-                list = songs
-                start = startIndex.coerceIn(0, songs.lastIndex)
-                originalOrder = emptyList()
-                shuffled = false
+                if (c.shuffleModeEnabled) command(PlaybackService.CMD_RESHUFFLE) else c.shuffleModeEnabled = true
             }
-            c.setMediaItems(list.map { it.toMediaItem() }, start, 0)
             c.prepare()
             c.play()
             refreshFlags()
@@ -480,9 +556,10 @@ class PlayerController(
         if (c.duration > 0 && target >= c.duration) c.seekToNext() else seekTo(target)
     }
 
+    /** [index] é a posição na fila como aparece na tela. */
     fun playAt(index: Int) = withController { c ->
         if (index in 0 until c.mediaItemCount) {
-            c.seekTo(index, 0)
+            c.seekTo(physicalIndex(index), 0)
             if (c.playbackState == Player.STATE_IDLE) c.prepare()
             c.play()
         }
@@ -494,14 +571,8 @@ class PlayerController(
             if (c.mediaItemCount == 0) {
                 playSongs(songs); return@withController
             }
+            if (c.shuffleModeEnabled) insertHint(ShuffleHints.INSERT_NEXT)
             c.addMediaItems(c.currentMediaItemIndex + 1, songs.map { it.toMediaItem() })
-            if (shuffled) {
-                val curId = c.currentMediaItem?.mediaId
-                val pos = originalOrder.indexOf(curId)
-                originalOrder = originalOrder.toMutableList().apply {
-                    addAll(if (pos >= 0) pos + 1 else size, songs.map { it.id })
-                }
-            }
         }
     }
 
@@ -511,78 +582,48 @@ class PlayerController(
             if (c.mediaItemCount == 0) {
                 playSongs(songs); return@withController
             }
+            if (c.shuffleModeEnabled) insertHint(ShuffleHints.INSERT_END)
             c.addMediaItems(songs.map { it.toMediaItem() })
-            if (shuffled) originalOrder = originalOrder + songs.map { it.id }
         }
     }
 
+    /** [index] é a posição na fila como aparece na tela. */
     fun removeAt(index: Int) = withController { c ->
         if (index !in 0 until c.mediaItemCount) return@withController
-        val id = c.getMediaItemAt(index).mediaId
-        c.removeMediaItem(index)
-        if (shuffled) {
-            val i = originalOrder.indexOf(id)
-            if (i >= 0) originalOrder = originalOrder.toMutableList().apply { removeAt(i) }
-        }
+        c.removeMediaItem(physicalIndex(index))
     }
 
+    /** Arrastar na fila: [from] e [to] são posições na tela. */
     fun move(from: Int, to: Int) = withController { c ->
-        if (from == to || from !in 0 until c.mediaItemCount || to !in 0 until c.mediaItemCount) return@withController
-        c.moveMediaItem(from, to)
+        val n = c.mediaItemCount
+        if (from == to || from !in 0 until n || to !in 0 until n) return@withController
+        if (!c.shuffleModeEnabled || order.size != n) {
+            c.moveMediaItem(from, to)
+            return@withController
+        }
+        // No aleatório, quem muda é a ordem de tocar, não a fila física.
+        val newOrder = order.toMutableList().apply { add(to, removeAt(from)) }
+        setOrder(newOrder.toIntArray())
+        _state.update { s -> s.copy(queue = s.queue.toMutableList().apply { add(to, removeAt(from)) }, index = displayIndex(c.currentMediaItemIndex)) }
+        setShuffleOrder(newOrder)
     }
 
     fun clearQueue() = withController { c ->
         c.stop()
         c.clearMediaItems()
         setRadio(null)
-        shuffled = false
-        originalOrder = emptyList()
+        if (c.shuffleModeEnabled) c.shuffleModeEnabled = false
         refreshFlags()
         saveSnapshot()
     }
 
-    /** Embaralha fisicamente a fila (a atual vai para o topo) ou restaura a ordem original. */
+    /**
+     * Liga/desliga o aleatório do próprio player (como no Boo): a fila física não é reenviada.
+     * Ao ligar, o serviço sorteia a ordem com a música atual primeiro; ao desligar, volta a
+     * ordem original.
+     */
     fun toggleShuffle() = withController { c ->
-        val count = c.mediaItemCount
-        val idx = c.currentMediaItemIndex
-        val items = (0 until count).map { c.getMediaItemAt(it) }
-        if (!shuffled) {
-            originalOrder = items.map { it.mediaId }
-            shuffled = true
-            if (count > 1 && idx >= 0) {
-                val rest = items.filterIndexed { i, _ -> i != idx }.shuffled()
-                if (idx + 1 < count) c.removeMediaItems(idx + 1, count)
-                if (idx > 0) c.removeMediaItems(0, idx)
-                c.addMediaItems(rest)
-            }
-        } else {
-            shuffled = false
-            if (count > 1 && idx >= 0) {
-                val byId = items.groupBy { it.mediaId }.mapValues { it.value.toMutableList() }
-                val remaining = items.map { it.mediaId }.groupingBy { it }.eachCount().toMutableMap()
-                val ordered = mutableListOf<String>()
-                for (id in originalOrder) {
-                    val n = remaining[id] ?: 0
-                    if (n > 0) { ordered += id; remaining[id] = n - 1 }
-                }
-                for (item in items) {
-                    val n = remaining[item.mediaId] ?: 0
-                    if (n > 0) { ordered += item.mediaId; remaining[item.mediaId] = n - 1 }
-                }
-                val currentId = items[idx].mediaId
-                val pos = ordered.indexOf(currentId)
-                val pool = byId.mapValues { it.value.toMutableList() }
-                pool[currentId]?.removeAt(0)
-                fun take(id: String) = pool[id]?.removeFirstOrNull() ?: items.first { it.mediaId == id }
-                val before = ordered.subList(0, pos).map(::take)
-                val after = ordered.subList(pos + 1, ordered.size).map(::take)
-                if (idx + 1 < count) c.removeMediaItems(idx + 1, count)
-                if (idx > 0) c.removeMediaItems(0, idx)
-                if (before.isNotEmpty()) c.addMediaItems(0, before)
-                if (after.isNotEmpty()) c.addMediaItems(after)
-            }
-            originalOrder = emptyList()
-        }
+        c.shuffleModeEnabled = !c.shuffleModeEnabled
         refreshFlags()
         saveSnapshot()
     }
@@ -611,28 +652,14 @@ class PlayerController(
         _state.update { it.copy(sleepTimerEnd = null, sleepAtEndOfTrack = false) }
     }
 
-    private fun Song.toMediaItem(): MediaItem {
-        val art = library.current.artPath(albumId)?.let { Uri.fromFile(File(it)) }
-        val fileUri = Uri.parse(uri)
-        return MediaItem.Builder()
-            .setMediaId(id)
-            .setUri(fileUri)
-            .setRequestMetadata(MediaItem.RequestMetadata.Builder().setMediaUri(fileUri).build())
-            .setMediaMetadata(
-                MediaMetadata.Builder()
-                    .setTitle(title)
-                    .setArtist(artist)
-                    .setAlbumTitle(album)
-                    .setAlbumArtist(albumArtist.ifBlank { null })
-                    .setArtworkUri(art)
-                    .setTrackNumber(track.takeIf { it > 0 })
-                    .setDiscNumber(disc.takeIf { it > 0 })
-                    .setReleaseYear(year.takeIf { it > 0 })
-                    .setGenre(genre.ifBlank { null })
-                    .setIsPlayable(true)
-                    .setIsBrowsable(false)
-                    .build(),
-            )
-            .build()
-    }
+    /**
+     * Item "magro": só o id e a URI do arquivo. Tudo o que passa do controller para o serviço
+     * atravessa o Binder; com centenas de músicas, mandar título/artista/capa de cada uma
+     * deixava "tocar tudo" e "aleatório" lentos. O [PlaybackService] completa os dados do
+     * lado de lá, direto da biblioteca em memória (ver [toPlayableMediaItem]).
+     */
+    private fun Song.toMediaItem(): MediaItem = MediaItem.Builder()
+        .setMediaId(id)
+        .setRequestMetadata(MediaItem.RequestMetadata.Builder().setMediaUri(Uri.parse(uri)).build())
+        .build()
 }

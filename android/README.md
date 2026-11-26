@@ -4,7 +4,7 @@ Player de música para Android que toca arquivos de pastas do próprio celular.
 
 ## Como compilar
 
-1. No Android Studio: **File > Open** e escolha a pasta `android` deste repositório.
+1. No Android Studio: **File > Open** e escolha esta pasta (`Criol`).
 2. Espere o Gradle sincronizar.
 3. Conecte o celular (com depuração USB ligada) e clique em **Run**. Ou gere o APK em
    **Build > Generate App Bundles or APKs > Generate APKs**.
@@ -28,7 +28,9 @@ Abra o app e toque em **Adicionar pasta**, depois escolha a pasta onde estão su
 - Páginas de álbum, artista, gênero e pasta, com cabeçalho na cor da capa.
 - Player em tela cheia com fundo desfocado da capa, deslizar a capa para trocar de faixa,
   arrastar para baixo para fechar, botões de voltar/avançar alguns segundos, aleatório e repetir.
-- Fila com reordenação por arraste.
+- Fila com reordenação por arraste. O aleatório é do próprio player: a música atual continua tocando,
+  a fila mostra a ordem sorteada, "Tocar a seguir" entra logo depois da atual e desligar o
+  aleatório volta à ordem original.
 - Letras sincronizadas (`.lrc` ao lado da música, numa pasta de letras escolhida em Configurações
   — casadas pelo nome do arquivo, "Artista - Título" ou título —, ou embutidas nas tags de
   MP3, FLAC, OGG/Opus e M4A). Toque numa linha para pular até ela.
@@ -57,10 +59,28 @@ Abra o app e toque em **Adicionar pasta**, depois escolha a pasta onde estão su
   mês, minutos por dia, tops) e avisa. O mês atual aparece como "Até agora".
 - O registro do histórico pode ser desligado em Configurações > Perfil e histórico.
 
+## Leitura rápida
+
+Com a permissão de ler músicas (o app pede ao escolher a primeira pasta; dá para ligar em
+Configurações > Biblioteca > Leitura rápida), o Criol continua usando só as pastas escolhidas,
+mas:
+- pega as tags do índice de músicas do Android numa consulta só, em vez de abrir arquivo por
+  arquivo (só para músicas novas ou alteradas; se o índice não bater com o arquivo, lê o arquivo);
+- não varre as pastas ao abrir o app quando nada mudou no aparelho desde a última leitura
+  (Android 11+, pastas do armazenamento do aparelho ou do cartão);
+- percebe músicas novas sozinho enquanto está aberto.
+
+Sem a permissão, tudo funciona como antes.
+
 ## Onde ficam os dados
 
-Tudo fica no armazenamento interno do app: `library.json` (cache das tags), `userdata.json`
-(favoritos, avaliações, playlists, reproduções), `queue.json` (fila), a pasta `art/` (capas),
-a pasta `listening/` (histórico de escuta, um arquivo por mês), `profile.json` (perfil e resumos
-mensais), `mixes.json` (mixes geradas) e a foto do perfil.
+Tudo fica no armazenamento interno do app:
+- `criol.db` (SQLite): favoritos, avaliações, reproduções, playlists e histórico de escuta. Cada
+  mudança grava só a linha que mudou;
+- `library.json` (cache das tags), `queue.json` (fila; a posição fica nas preferências do app),
+  a pasta `art/` (capas), `profile.json` (perfil e resumos mensais), `mixes.json` (mixes geradas)
+  e a foto do perfil.
+
+Ao atualizar de uma versão antiga, `userdata.json` e os arquivos de `listening/` são importados
+para o banco uma vez; o original fica como `userdata.json.migrated` e em `listening/backup/`.
 Seus arquivos de música só são lidos, nunca alterados.

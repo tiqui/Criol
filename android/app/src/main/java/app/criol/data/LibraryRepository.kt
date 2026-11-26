@@ -17,7 +17,8 @@ import java.io.File
 
 sealed interface ScanState {
     data object Idle : ScanState
-    data class Running(val progress: ScanProgress) : ScanState
+    /** [background]: leitura automática ao abrir o app, com a biblioteca já na tela. */
+    data class Running(val progress: ScanProgress, val background: Boolean = false) : ScanState
     data class Finished(val songCount: Int) : ScanState
     data class Failed(val message: String) : ScanState
 }
@@ -43,6 +44,38 @@ class LibraryRepository(
 
     private var cache = LibraryCache()
     private var scanJob: Job? = null
+    private val mediaStore get() = scanner.mediaStore
+    private var observer: android.database.ContentObserver? = null
+
+    /** Pastas e filtros que definem a biblioteca: mudou algum, a leitura antiga não vale. */
+    private fun scanKey(): String {
+        val s = settings.value
+        return (s.folders.sorted() + "|" + s.lyricsFolders.sorted() + "|" + s.minDurationSeconds).toString()
+    }
+
+    /**
+     * Abrir o app sem nada novo no aparelho não precisa varrer as pastas: o Android conta cada
+     * arquivo criado, apagado ou alterado, e se o contador é o mesmo da última leitura, nada mudou.
+     */
+    private fun nothingChangedSinceLastScan(): Boolean {
+        val s = settings.value
+        if (cache.songs.isEmpty() || cache.generations.isEmpty() || cache.scanKey != scanKey()) return false
+        if (!MediaStoreIndex.coversAll(s.folders + s.lyricsFolders)) return false
+        return mediaStore.generations() == cache.generations
+    }
+
+    /** Com a permissão de ler músicas, a biblioteca se atualiza sozinha quando aparece arquivo novo. */
+    fun onMediaPermissionChanged() {
+        if (observer != null || !mediaStore.hasPermission()) return
+        observer = mediaStore.observe {
+            scope.launch {
+                scanJob?.join()
+                if (settings.value.folders.isNotEmpty() && !nothingChangedSinceLastScan()) rescan(background = current.songs.isNotEmpty())
+            }
+        }
+    }
+
+    val hasMediaPermission: Boolean get() = mediaStore.hasPermission()
 
     fun init() {
         scope.launch(Dispatchers.IO) {
@@ -66,8 +99,12 @@ class LibraryRepository(
         openScanRequested = true
         scope.launch {
             loaded.first { it }
+            onMediaPermissionChanged()
             val s = settings.value
-            if (s.scanOnStartup && s.folders.isNotEmpty()) rescan()
+            if (s.scanOnStartup && s.folders.isNotEmpty()) {
+                val skip = withContext(Dispatchers.IO) { nothingChangedSinceLastScan() }
+                if (!skip) rescan(background = current.songs.isNotEmpty())
+            }
         }
     }
 
@@ -75,11 +112,14 @@ class LibraryRepository(
         _library.value = Library.build(cache.songs, cache.artColors, scanner.artDir)
     }
 
-    fun rescan(clearArt: Boolean = false) {
+    fun rescan(clearArt: Boolean = false, background: Boolean = false) {
         if (scanJob?.isActive == true) return
         scanJob = scope.launch(Dispatchers.IO) {
             try {
-                _scanState.value = ScanState.Running(ScanProgress("Procurando arquivos", 0, 0))
+                _scanState.value = ScanState.Running(ScanProgress("Procurando arquivos", 0, 0), background)
+                // Lido antes da varredura: o que mudar durante ela conta como mudança na próxima.
+                val generations = mediaStore.generations().orEmpty()
+                val key = scanKey()
                 val prev = if (clearArt) {
                     scanner.artDir.listFiles()?.forEach { it.delete() }
                     cache.copy(artColors = emptyMap(), noArt = emptySet())
@@ -89,13 +129,19 @@ class LibraryRepository(
                     lyricRoots = settings.value.lyricsFolders,
                     previous = prev,
                     minDurationMs = settings.value.minDurationSeconds * 1000L,
-                ) { p -> _scanState.value = ScanState.Running(p) }
-                cache = result
-                publish()
-                runCatching {
-                    val tmp = File(cacheFile.parentFile, cacheFile.name + ".tmp")
-                    tmp.writeText(json.encodeToString(result))
-                    if (!tmp.renameTo(cacheFile)) { cacheFile.delete(); tmp.renameTo(cacheFile) }
+                ) { p -> _scanState.value = ScanState.Running(p, background) }
+                // Nada mudou (o caso comum ao abrir o app): mantém a mesma biblioteca. Publicar uma
+                // nova, mesmo idêntica, fazia todas as telas recalcularem listas e ordenações.
+                val unchanged = result.songs == cache.songs && result.artColors == cache.artColors
+                val sameMarks = generations == cache.generations && key == cache.scanKey
+                cache = result.copy(generations = generations, scanKey = key)
+                if (!unchanged) publish()
+                if (!unchanged || !sameMarks) {
+                    runCatching {
+                        val tmp = File(cacheFile.parentFile, cacheFile.name + ".tmp")
+                        tmp.writeText(json.encodeToString(cache))
+                        if (!tmp.renameTo(cacheFile)) { cacheFile.delete(); tmp.renameTo(cacheFile) }
+                    }
                 }
                 _scanState.value = ScanState.Finished(result.songs.size)
             } catch (e: kotlinx.coroutines.CancellationException) {

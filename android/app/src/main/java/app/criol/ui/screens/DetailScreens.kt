@@ -129,7 +129,7 @@ private fun SubtitleLine(parts: List<String>, link: String? = null, onLink: () -
 fun AlbumScreen(id: String) {
     val lib by Graph.library.library.collectAsState()
     val data by Graph.userData.data.collectAsState()
-    val player by Graph.player.state.collectAsState()
+    val currentId by Graph.player.currentId.collectAsState()
     val nav = LocalNavigator.current
     val sheets = LocalSheets.current
     val album = lib.albumsById[id] ?: return NotFound("Álbum")
@@ -199,7 +199,7 @@ fun AlbumScreen(id: String) {
                     subtitle = s.artist,
                     onClick = { Graph.player.playSongs(album.songs, i) },
                     onMore = { sheets.show(Sheet.SongMenu(s)) },
-                    isCurrent = player.current?.id == s.id,
+                    isCurrent = currentId == s.id,
                     isFavorite = s.id in data.favoriteSongs,
                 )
             }
@@ -228,7 +228,7 @@ fun AlbumScreen(id: String) {
 fun ArtistScreen(id: String) {
     val lib by Graph.library.library.collectAsState()
     val data by Graph.userData.data.collectAsState()
-    val player by Graph.player.state.collectAsState()
+    val currentId by Graph.player.currentId.collectAsState()
     val nav = LocalNavigator.current
     val sheets = LocalSheets.current
     val artist = lib.artistsById[id] ?: return NotFound("Artista")
@@ -289,7 +289,7 @@ fun ArtistScreen(id: String) {
                 subtitle = s.album,
                 onClick = { Graph.player.playSongs(top, i) },
                 onMore = { sheets.show(Sheet.SongMenu(s)) },
-                isCurrent = player.current?.id == s.id,
+                isCurrent = currentId == s.id,
                 isFavorite = s.id in data.favoriteSongs,
             )
         }
@@ -330,7 +330,7 @@ fun LazyListScope.albumGridRows(albums: List<Album>, onClick: (Album) -> Unit) {
 fun GenreScreen(id: String) {
     val lib by Graph.library.library.collectAsState()
     val data by Graph.userData.data.collectAsState()
-    val player by Graph.player.state.collectAsState()
+    val currentId by Graph.player.currentId.collectAsState()
     val sheets = LocalSheets.current
     val genre = lib.genresById[id] ?: return NotFound("Gênero")
 
@@ -367,7 +367,7 @@ fun GenreScreen(id: String) {
                 artPath = lib.artPath(s.albumId),
                 onClick = { Graph.player.playSongs(genre.songs, i) },
                 onMore = { sheets.show(Sheet.SongMenu(s)) },
-                isCurrent = player.current?.id == s.id,
+                isCurrent = currentId == s.id,
                 isFavorite = s.id in data.favoriteSongs,
             )
         }
@@ -382,7 +382,7 @@ fun GenreScreen(id: String) {
 fun FolderScreen(path: String) {
     val lib by Graph.library.library.collectAsState()
     val data by Graph.userData.data.collectAsState()
-    val player by Graph.player.state.collectAsState()
+    val currentId by Graph.player.currentId.collectAsState()
     val nav = LocalNavigator.current
     val sheets = LocalSheets.current
     val folder = lib.foldersByPath[path] ?: return NotFound("Pasta")
@@ -417,7 +417,7 @@ fun FolderScreen(path: String) {
                     artPath = lib.artPath(s.albumId),
                     onClick = { Graph.player.playSongs(folder.songs, i) },
                     onMore = { sheets.show(Sheet.SongMenu(s)) },
-                    isCurrent = player.current?.id == s.id,
+                    isCurrent = currentId == s.id,
                     isFavorite = s.id in data.favoriteSongs,
                 )
             }

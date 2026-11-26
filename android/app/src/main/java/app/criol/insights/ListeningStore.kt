@@ -1,6 +1,7 @@
 package app.criol.insights
 
 import android.content.Context
+import app.criol.data.CriolDatabase
 import app.criol.data.Song
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,17 +65,23 @@ data class ListenEntry(
 }
 
 /**
- * Histórico de escuta, separado por mês (`listening/2026-11.json`).
+ * Histórico de escuta.
  *
- * Tudo é carregado na memória ao abrir: mesmo quem ouve muito gera só algumas dezenas de
- * milhares de registros pequenos por ano. A escuta em andamento é salva em `pending.json`
- * para não se perder se o sistema matar o app no meio da música.
+ * Fica no banco ([CriolDatabase], tabela listens): cada escuta é uma linha nova, em vez de
+ * regravar o arquivo do mês inteiro. Tudo é carregado na memória ao abrir: mesmo quem ouve
+ * muito gera só algumas dezenas de milhares de registros pequenos por ano. A escuta em
+ * andamento é salva em `listening/pending.json` para não se perder se o sistema matar o app
+ * no meio da música.
+ *
+ * Os arquivos antigos (`listening/AAAA-MM.json`) são importados uma vez e movidos para
+ * `listening/backup/`.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ListeningStore(context: Context, private val scope: CoroutineScope) {
     private val dir = File(context.filesDir, "listening")
     private val pendingFile = File(dir, "pending.json")
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = false }
+    private val db = CriolDatabase.get(context)
 
     /** Todas as gravações passam por aqui, uma de cada vez e na ordem. */
     private val io = Dispatchers.IO.limitedParallelism(1)
@@ -88,27 +95,42 @@ class ListeningStore(context: Context, private val scope: CoroutineScope) {
 
     fun init() {
         scope.launch(io) {
-            dir.mkdirs()
-            val all = (dir.listFiles { f -> monthFile.matches(f.name) } ?: emptyArray())
-                .flatMap { readMonth(it) }
-                .toMutableList()
+            runCatching { migrateMonthFiles() }
+            val all = runCatching { db.loadListens() }.getOrDefault(emptyList()).toMutableList()
             val pending = runCatching {
                 if (pendingFile.exists()) json.decodeFromString<ListenEntry>(pendingFile.readText()) else null
             }.getOrNull()
-            if (pending != null && all.none { it.id == pending.id }) all += pending
-            _entries.value = all.sortedBy { it.playedAt }
             if (pending != null) {
-                writeMonth(monthKey(pending.playedAt))
+                if (all.none { it.id == pending.id }) {
+                    runCatching { db.insertListens(listOf(pending)) }
+                    all += pending
+                    all.sortBy { it.playedAt }
+                }
                 pendingFile.delete()
             }
+            _entries.value = all
             _loaded.value = true
+        }
+    }
+
+    private fun migrateMonthFiles() {
+        if (db.meta(MIGRATED_KEY) != null) return
+        val files = dir.listFiles { f -> monthFile.matches(f.name) } ?: emptyArray()
+        val entries = files.flatMap { f ->
+            runCatching { json.decodeFromString<List<ListenEntry>>(f.readText()) }.getOrDefault(emptyList())
+        }
+        if (entries.isNotEmpty()) db.insertListens(entries)
+        db.setMeta(MIGRATED_KEY, System.currentTimeMillis().toString())
+        if (files.isNotEmpty()) {
+            val backup = File(dir, "backup").apply { mkdirs() }
+            files.forEach { it.renameTo(File(backup, it.name)) }
         }
     }
 
     fun add(entry: ListenEntry) {
         scope.launch(io) {
             _entries.value = _entries.value + entry
-            writeMonth(monthKey(entry.playedAt))
+            runCatching { db.insertListens(listOf(entry)) }
             pendingFile.delete()
         }
     }
@@ -127,7 +149,8 @@ class ListeningStore(context: Context, private val scope: CoroutineScope) {
     }
 
     suspend fun clear() = withContext(io) {
-        dir.listFiles()?.forEach { it.delete() }
+        runCatching { db.clearListens() }
+        pendingFile.delete()
         _entries.value = emptyList()
     }
 
@@ -138,28 +161,15 @@ class ListeningStore(context: Context, private val scope: CoroutineScope) {
         val parsed = json.decodeFromString<List<ListenEntry>>(raw)
         val known = _entries.value.mapTo(HashSet()) { it.id }
         val fresh = parsed.filter { it.id.isNotBlank() && it.songId.isNotBlank() && it.id !in known }
+            .distinctBy { it.id }
         if (fresh.isEmpty()) return@withContext 0
+        db.insertListens(fresh)
         _entries.value = (_entries.value + fresh).sortedBy { it.playedAt }
-        fresh.map { monthKey(it.playedAt) }.distinct().forEach { writeMonth(it) }
         fresh.size
-    }
-
-    private fun readMonth(file: File): List<ListenEntry> = runCatching {
-        json.decodeFromString<List<ListenEntry>>(file.readText())
-    }.getOrDefault(emptyList())
-
-    private fun writeMonth(month: String) {
-        runCatching {
-            dir.mkdirs()
-            val items = _entries.value.filter { monthKey(it.playedAt) == month }
-            val file = File(dir, "$month.json")
-            val tmp = File(dir, "$month.json.tmp")
-            tmp.writeText(json.encodeToString(items))
-            if (!tmp.renameTo(file)) { file.delete(); tmp.renameTo(file) }
-        }
     }
 
     private companion object {
         val monthFile = Regex("""\d{4}-\d{2}\.json""")
+        const val MIGRATED_KEY = "listening_migrated"
     }
 }

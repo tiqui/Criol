@@ -215,7 +215,7 @@ private fun SongsTab() {
     val lib by Graph.library.library.collectAsState()
     val data by Graph.userData.data.collectAsState()
     val settings by Graph.settings.settings.collectAsState()
-    val player by Graph.player.state.collectAsState()
+    val currentId by Graph.player.currentId.collectAsState()
     val sheets = LocalSheets.current
     val sort = settings.songSort
     val songs = remember(lib, sort, if (sort == "plays" || sort == "rating") data else null) {
@@ -241,7 +241,7 @@ private fun SongsTab() {
                     artPath = lib.artPath(s.albumId),
                     onClick = { Graph.player.playSongs(songs, i) },
                     onMore = { sheets.show(Sheet.SongMenu(s)) },
-                    isCurrent = player.current?.id == s.id,
+                    isCurrent = currentId == s.id,
                     isFavorite = s.id in data.favoriteSongs,
                 )
             }
@@ -531,7 +531,7 @@ fun collectFolderSongs(folder: FolderNode): List<Song> =
 private fun FavoritesTab() {
     val lib by Graph.library.library.collectAsState()
     val data by Graph.userData.data.collectAsState()
-    val player by Graph.player.state.collectAsState()
+    val currentId by Graph.player.currentId.collectAsState()
     val sheets = LocalSheets.current
     var sub by rememberSaveable { mutableStateOf(0) }
     Column {
@@ -554,7 +554,7 @@ private fun FavoritesTab() {
                                 artPath = lib.artPath(s.albumId),
                                 onClick = { Graph.player.playSongs(songs, i) },
                                 onMore = { sheets.show(Sheet.SongMenu(s)) },
-                                isCurrent = player.current?.id == s.id,
+                                isCurrent = currentId == s.id,
                             )
                         }
                     }

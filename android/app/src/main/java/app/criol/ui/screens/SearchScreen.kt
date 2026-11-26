@@ -64,7 +64,7 @@ import kotlinx.coroutines.withContext
 fun SearchScreen() {
     val lib by Graph.library.library.collectAsState()
     val data by Graph.userData.data.collectAsState()
-    val player by Graph.player.state.collectAsState()
+    val currentId by Graph.player.currentId.collectAsState()
     val nav = LocalNavigator.current
     val sheets = LocalSheets.current
     val colors = Criol.colors
@@ -182,7 +182,7 @@ fun SearchScreen() {
                                 artPath = lib.artPath(s.albumId),
                                 onClick = { focus.clearFocus(); Graph.player.playSongs(r.songs, r.songs.indexOf(s)) },
                                 onMore = { sheets.show(Sheet.SongMenu(s)) },
-                                isCurrent = player.current?.id == s.id,
+                                isCurrent = currentId == s.id,
                                 isFavorite = s.id in data.favoriteSongs,
                             )
                         }

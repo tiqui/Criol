@@ -107,7 +107,8 @@ fun CriolRoot(openPlayerSignal: Int) {
         val navController = rememberNavController()
         val sheets = remember { SheetController() }
         val playerOpen = rememberSaveable { mutableStateOf(false) }
-        val playerState by Graph.player.state.collectAsState()
+        // Só precisa saber se há música; ler o estado inteiro recompunha a raiz a cada play/pause.
+        val currentId by Graph.player.currentId.collectAsState()
         val colors = Criol.colors
         val activity = LocalContext.current as? ComponentActivity
 
@@ -145,8 +146,24 @@ fun CriolRoot(openPlayerSignal: Int) {
             }
         }
 
+        // Leitura rápida (índice de músicas do Android): pede uma vez, ao escolher a primeira
+        // pasta ou, para quem já usa o app, na próxima abertura. Dá para ligar depois nas Configurações.
+        val mediaPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) Graph.library.onMediaPermissionChanged()
+        }
+        fun askMediaPermissionOnce() {
+            if (Graph.library.hasMediaPermission || Graph.settings.value.mediaPermissionAsked) return
+            Graph.settings.update { it.copy(mediaPermissionAsked = true) }
+            mediaPermission.launch(app.criol.data.MediaStoreIndex.permission)
+        }
+        LaunchedEffect(Unit) {
+            if (Graph.settings.value.folders.isNotEmpty()) askMediaPermissionOnce()
+        }
         val folderPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
-            if (uri != null) Graph.library.addFolder(uri)
+            if (uri != null) {
+                Graph.library.addFolder(uri)
+                askMediaPermissionOnce()
+            }
         }
         val addFolder = { folderPicker.launch(null) }
 
@@ -195,7 +212,7 @@ fun CriolRoot(openPlayerSignal: Int) {
                 }
 
                 AnimatedVisibility(
-                    visible = playerOpen.value && playerState.current != null,
+                    visible = playerOpen.value && currentId != null,
                     // Sobe desacelerando e desce acelerando, sem esmaecer (o player é opaco).
                     enter = slideInVertically(Motion.enter(Motion.LONG)) { it },
                     exit = slideOutVertically(Motion.exit(280)) { it },

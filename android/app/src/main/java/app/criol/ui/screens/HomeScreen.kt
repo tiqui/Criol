@@ -99,7 +99,7 @@ fun HomeScreen(onAddFolder: () -> Unit) {
                 }
             }
         }
-        item { ScanBanner() }
+        item { ScanBanner(showBackground = false) }
 
         if (lib.isEmpty && (!loaded || scan is ScanState.Running)) return@LazyColumn
         if (loaded && lib.isEmpty) {
@@ -233,10 +233,12 @@ fun GenreTile(genre: Genre, modifier: Modifier = Modifier.size(width = 160.dp, h
 }
 
 @Composable
-fun ScanBanner() {
+fun ScanBanner(showBackground: Boolean = true) {
     val scan by Graph.library.scanState.collectAsState()
     val s = scan
     if (s !is ScanState.Running) return
+    // A leitura automática ao abrir o app roda escondida: a faixa aparecia e sumia empurrando a tela.
+    if (s.background && !showBackground) return
     val colors = Criol.colors
     Column(
         Modifier

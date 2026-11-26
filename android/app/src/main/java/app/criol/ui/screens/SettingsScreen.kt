@@ -151,6 +151,7 @@ fun SettingsScreen(onAddFolder: () -> Unit) {
                     Text(text, color = colors.foregroundMuted, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 20.dp))
                 }
             }
+            item { FastReadRow() }
             item {
                 SwitchRow("Escanear ao abrir o app", "Procura arquivos novos ou alterados sempre que o app inicia.", settings.scanOnStartup) {
                     Graph.settings.update { s -> s.copy(scanOnStartup = it) }
@@ -540,6 +541,53 @@ private fun <T> ChoiceRow(title: String, value: T, options: List<Pair<T, String>
                         onClick = { open = false; onChange(v) },
                     )
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Leitura rápida: com a permissão de ler músicas, o Criol pega as tags do índice do Android
+ * (uma consulta só), pula a varredura quando nada mudou e percebe músicas novas sozinho.
+ */
+@Composable
+private fun FastReadRow() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val activity = context as? android.app.Activity
+    var granted by remember { mutableStateOf(Graph.library.hasMediaPermission) }
+    androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
+        granted = Graph.library.hasMediaPermission
+        if (granted) Graph.library.onMediaPermissionChanged()
+        onPauseOrDispose { }
+    }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
+        granted = ok
+        if (ok) Graph.library.onMediaPermissionChanged()
+    }
+    fun openAppSettings() {
+        context.startActivity(
+            android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                .setData(Uri.fromParts("package", context.packageName, null)),
+        )
+    }
+    SwitchRow(
+        "Leitura rápida",
+        if (granted) {
+            "Ativada: usa o índice de músicas do Android. Músicas novas aparecem sozinhas e a leitura é bem mais rápida."
+        } else {
+            "Permita ler as músicas do aparelho para ler a biblioteca bem mais rápido e achar músicas novas sozinho."
+        },
+        granted,
+    ) { want ->
+        val permission = app.criol.data.MediaStoreIndex.permission
+        when {
+            // Desligar só pelas configurações do Android.
+            !want -> openAppSettings()
+            Graph.settings.value.mediaPermissionAsked && activity != null &&
+                !androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(activity, permission) -> openAppSettings()
+            else -> {
+                Graph.settings.update { it.copy(mediaPermissionAsked = true) }
+                launcher.launch(permission)
             }
         }
     }
