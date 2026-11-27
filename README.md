@@ -7,6 +7,47 @@ você ouviu. Tem duas versões, com a mesma biblioteca, o mesmo perfil e as mesm
 - **Desktop e web** ([`desktop/`](desktop)): Windows, Linux, macOS e navegador. Toca músicas de
   pastas do computador e de servidores **Navidrome/Subsonic** e **Jellyfin**.
 
+## Como é
+
+### Android
+
+<table>
+  <tr>
+    <td width="25%"><img src="prints/app/inicio.jpg" alt="Início com a daylist, o No Repeat e as mixes por gênero"></td>
+    <td width="25%"><img src="prints/app/tocando-agora.jpg" alt="Tocando agora com capa, estrelas e controles"></td>
+    <td width="25%"><img src="prints/app/fila.jpg" alt="Fila com o Auto DJ ligado"></td>
+    <td width="25%"><img src="prints/app/letra.jpg" alt="Letra sincronizada sobre a cor da capa"></td>
+  </tr>
+  <tr>
+    <td><b>Início</b>: daylist, No Repeat, mixes do período e por gênero.</td>
+    <td><b>Tocando agora</b>: capa, favorito, estrelas e os botões de voltar/avançar segundos.</td>
+    <td><b>Fila</b>: arrastar para reordenar e o Auto DJ completando a fila.</td>
+    <td><b>Letra</b>: sincronizada, sobre a cor da capa.</td>
+  </tr>
+</table>
+
+### Desktop e web
+
+**Início**: atalhos para o que você ouviu por último, as mixes do Feito para você e os tocados
+recentemente.
+
+![Tela inicial do Criol](prints/web/inicio.png)
+
+**Letra ao lado**: a letra sincronizada abre num painel à direita, junto com a fila, sem sair da
+tela em que você está.
+
+![Tela inicial com a letra sincronizada no painel lateral](prints/web/inicio-com-letra.png)
+
+**Tocando agora**: tela cheia com a capa, os controles e a letra, sobre um fundo feito da própria
+capa desfocada.
+
+![Tela Tocando agora com capa e letra sincronizada](prints/web/tocando-agora.png)
+
+**Perfil**: minutos ouvidos, sequência de dias, DNA musical, relógio musical, tops, resumos
+mensais, conquistas e o que você ouviu por último.
+
+<img src="prints/web/perfil.png" alt="Página de perfil com estatísticas, tops e conquistas" width="720">
+
 ## Baixar
 
 Os instaladores do desktop ficam na [página de releases](https://github.com/tiqui/Criol/releases):
