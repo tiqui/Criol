@@ -210,6 +210,8 @@
         "daylistDescription": "Seu dia em uma playlist. Muda ao longo do dia.",
         "daypartFallback": "O que combina com este período do dia.",
         "daypartTitle": "Mix da {{daypart}}",
+        "moodMatch": "Combina {{percent}}% com o horário",
+        "moodMatchHint": "Quanto esta playlist combina com o que você costuma ouvir nesse horário (e com o que você pula).",
         "dayparts": {
             "afternoon": {
                 "description": "Pra tarde render: {{genres}} e mais.",

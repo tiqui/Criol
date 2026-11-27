@@ -10,6 +10,7 @@ import java.time.ZoneId
 import java.time.format.TextStyle
 import java.time.temporal.IsoFields
 import java.util.Locale
+import kotlin.math.pow
 import kotlin.random.Random
 
 @Serializable
@@ -32,6 +33,8 @@ data class Mix(
     val weekday: Int,
     /** false quando ainda não há histórico suficiente e a mix usa só contagens e a biblioteca. */
     val personalized: Boolean,
+    /** Daylist e mixes do período: quanto a playlist combina com o que você ouve no horário (0–100). */
+    val moodMatch: Int? = null,
 )
 
 val MixOrder = listOf(
@@ -45,12 +48,13 @@ private fun weekKey(now: LocalDateTime) =
     "${now.get(IsoFields.WEEK_BASED_YEAR)}-w${now.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR)}"
 
 fun mixPeriodKey(kind: MixKind, now: LocalDateTime, daypart: Daypart? = null): String = when (kind) {
-    MixKind.DAYLIST -> "${now.toLocalDate()}-${(daypart ?: Daypart.ofHour(now.hour)).name.lowercase()}"
+    // A daylist acompanha o humor em blocos de 4 horas (0h, 4h, 8h, 12h, 16h e 20h).
+    MixKind.DAYLIST -> "${now.toLocalDate()}-h${now.hour / 4 * 4}"
     MixKind.DAYPART, MixKind.ON_REPEAT -> now.toLocalDate().toString()
     else -> weekKey(now)
 }
 
-/** Período atual da daylist; muda quatro vezes por dia. */
+/** Período atual da daylist; muda a cada 4 horas. */
 fun currentDaylistPeriod(now: LocalDateTime = LocalDateTime.now()) = mixPeriodKey(MixKind.DAYLIST, now)
 
 /**
@@ -169,23 +173,52 @@ class MixGenerator(
     // Mixes
     // ------------------------------------------------------------------
 
+    /**
+     * Daylist (bloco de 4 horas atual) ou mix de um período do dia. As músicas são escolhidas
+     * pelo encaixe com o humor do horário (ver [Mood]): o que você ouve naquelas horas, o que
+     * você pula, e, com pouco histórico, a energia esperada para a hora.
+     */
     fun daypartMix(daypart: Daypart, daylist: Boolean): Mix {
-        val weekday = now.dayOfWeek
-        val inDaypart = { e: ListenEntry -> Daypart.of(e.playedAt) == daypart }
-        // A daylist também puxa o que você costuma ouvir neste dia da semana.
-        val weighted: (ListenEntry) -> Boolean =
-            if (daylist) { e -> inDaypart(e) || zoned(e.playedAt).dayOfWeek == weekday } else inDaypart
+        val hours = if (daylist) Mood.slotHours(now.hour) else Mood.daypartHours(daypart)
+        val hourProfile = Mood.profile(entries, hours, nowMs, weekday = if (daylist) now.dayOfWeek.value else null)
+        val history = Mood.profile(entries, null, nowMs)
+        val general = if (history.isEmpty) Mood.fromPlayCounts(topPlayed, userData.playCounts) else history
+        val scorer = MoodScorer(hourProfile, general, hours)
 
-        val (genres, personalized) = tasteGenres(weighted)
+        fun known(names: List<String>) = names.filter { genreIndex.containsKey(it.normalizeForSearch()) }
+        val hourGenres = known(hourProfile.topGenres(8))
+        val (taste, personalized) = tasteGenres()
+        // Gêneros do horário; com pouco histórico nele, os do seu gosto que combinam com a hora.
+        val genres = if (hourProfile.confidence >= 0.25 && hourGenres.isNotEmpty()) {
+            hourGenres
+        } else {
+            taste.take(8).sortedByDescending { Mood.energyFit(listOf(it), hours) }
+        }
         val top = if (daylist) genres.take(3) else genres.take(5).shuffled(random).take(3)
 
-        val favoriteIds = scoreSongs(entries, now = nowMs, filter = weighted).map { it.songId }
-        val favorites = resolve(sampleTop(favoriteIds, 18))
-        val discovered = interleave(top.map { randomByGenre(it, 20) })
+        // Favoritas do horário: reproduções perto destas horas, as recentes valendo mais.
+        val favorite = HashMap<String, Double>()
+        for (e in entries) {
+            if (!e.counted) continue
+            val hour = zoned(e.playedAt).hour
+            val w = hours.sumOf { Mood.hourWeight(hour, it) } / hours.size
+            if (w > 0) favorite[e.songId] = (favorite[e.songId] ?: 0.0) + w * 0.5.pow((nowMs - e.playedAt).toDouble() / DAY_MS / 30)
+        }
+        val favoriteMax = favorite.values.maxOrNull() ?: 1.0
 
-        var songs = finalize(interleave(listOf(favorites, discovered)))
-        if (songs.size < 10) songs = finalize(songs + topPlayed.shuffled(random))
-        if (songs.size < 10) songs = finalize(songs + library.songs.shuffled(random).take(300))
+        val pool = LinkedHashSet<Song>()
+        pool += resolve(favorite.entries.sortedByDescending { it.value }.take(80).map { it.key })
+        (genres.take(6) + top).distinct().forEach { pool += randomByGenre(it, 40) }
+        pool += topPlayed.take(150)
+        pool += library.songs.shuffled(random).take(400)
+
+        val scored = pool.map { s ->
+            s to scorer.fit(s) + 0.25 * ((favorite[s.id] ?: 0.0) / favoriteMax) + random.nextDouble() * 0.12
+        }
+        // Só o que combina com o horário; se sobrar pouco, completa com as mais próximas.
+        val good = scored.filter { scorer.fit(it.first) >= MIN_MOOD_FIT }
+        val ranked = (if (good.size >= 20) good else scored).sortedByDescending { it.second }.map { it.first }
+        val songs = finalize(ranked).shuffled(random)
 
         return build(
             id = if (daylist) "daylist" else "daypart-${daypart.name.lowercase()}",
@@ -194,7 +227,7 @@ class MixGenerator(
             personalized = personalized,
             tags = top,
             daypart = daypart,
-        )
+        ).copy(moodMatch = scorer.matchPercent(songs))
     }
 
     fun onRepeat(): Mix {
@@ -267,6 +300,8 @@ class MixGenerator(
     fun isFresh(mix: Mix): Boolean {
         val daypart = if (mix.kind == MixKind.DAYLIST) Daypart.ofHour(now.hour) else mix.daypart
         if (mix.periodKey != mixPeriodKey(mix.kind, now, daypart)) return false
+        // Mixes de horário feitas antes do cálculo de humor: refaz uma vez.
+        if ((mix.kind == MixKind.DAYLIST || mix.kind == MixKind.DAYPART) && mix.moodMatch == null && mix.songIds.isNotEmpty()) return false
         // Uma mix que saiu vazia tenta de novo depois de uma hora (o histórico pode ter crescido).
         return mix.songIds.isNotEmpty() || nowMs - mix.generatedAt < 60 * 60 * 1000
     }
@@ -314,6 +349,8 @@ class MixGenerator(
     companion object {
         const val MIX_SIZE = 40
         const val MAX_PER_ARTIST = 3
+        /** Encaixe mínimo com o humor do horário para entrar na daylist/mix do período. */
+        const val MIN_MOOD_FIT = 0.5
     }
 }
 

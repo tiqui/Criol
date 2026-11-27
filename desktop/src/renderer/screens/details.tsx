@@ -358,6 +358,12 @@ function MixContent() {
                         <span>{t('common.songCount', { count: songs.length, formatted: songs.length })}</span>
                         <Dot />
                         <span>{formatLongDuration(songs.reduce((n, s) => n + s.durationMs, 0))}</span>
+                        {mix.moodMatch !== undefined && (
+                            <>
+                                <Dot />
+                                <span title={t('mixes.moodMatchHint')}>{t('mixes.moodMatch', { percent: mix.moodMatch })}</span>
+                            </>
+                        )}
                         {!mix.personalized && (
                             <>
                                 <Dot />

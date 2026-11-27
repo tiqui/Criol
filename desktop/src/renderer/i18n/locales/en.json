@@ -208,6 +208,8 @@
         "daylistDescription": "Your day in a playlist. Changes throughout the day.",
         "daypartFallback": "What fits this time of day.",
         "daypartTitle": "{{daypart}} Mix",
+        "moodMatch": "{{percent}}% match for this time",
+        "moodMatchHint": "How well this playlist fits what you usually play (and skip) at this time of day.",
         "dayparts": {
             "afternoon": {
                 "description": "To keep the afternoon going: {{genres}} and more.",

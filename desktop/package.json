@@ -1,6 +1,6 @@
 {
     "name": "criol",
-    "version": "2.1.2",
+    "version": "2.1.3",
     "private": true,
     "license": "MIT",
     "description": "Criol - player de música para pastas locais, Navidrome/Subsonic e Jellyfin",

@@ -2,6 +2,24 @@
 
 As mudanças de cada versão do Criol para desktop e web.
 
+## [2.1.3] - 2026-11-27
+
+### Mudado
+
+- Daylist e mixes da Manhã/Tarde/Noite seguem o humor de cada horário: o Criol aprende o que
+  você ouve (e o que você pula) em cada hora do dia, numa janela de cerca de 4 horas, com as
+  escutas recentes valendo mais. Quem ouve jazz cedo e trap a partir das 9h recebe jazz às 6h e
+  trap às 10h; quem pula metal de manhã não recebe metal de manhã.
+- Com pouco histórico num horário, a escolha usa a energia esperada para a hora (calmo cedo,
+  mais pesado à tarde e à noite) junto com o seu gosto geral: sem histórico, nada de heavy metal
+  às 7h, a não ser que você ouça metal de manhã.
+- A daylist se renova a cada 4 horas (0h, 4h, 8h, 12h, 16h e 20h).
+
+### Adicionado
+
+- A página da daylist e das mixes do período mostra quanto a playlist combina com o horário
+  (ex.: "Combina 87% com o horário").
+
 ## [2.1.2] - 2026-11-26
 
 ### Adicionado

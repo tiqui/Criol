@@ -10,6 +10,7 @@ import { shuffled } from '@/player/auto-dj';
 
 import type { ListenEntry } from './listening-db';
 import { DAY_MS, type Daypart, getDaypart, scoreGenres, scoreSongs } from './listening-stats';
+import { daypartHours, energyFit, hourWeight, moodProfile, MoodScorer, profileFromPlayCounts, slotHours } from './mood';
 
 /**
  * "Feito para você": daylist, mixes do período do dia, No Repeat, De volta pro repeat,
@@ -33,7 +34,12 @@ export interface Mix {
     /** 0 = domingo ... 6 = sábado. */
     weekday: number;
     personalized: boolean;
+    /** Daylist e mixes do período: quanto a playlist combina com o que você ouve no horário (0–100). */
+    moodMatch?: number;
 }
+
+/** Encaixe mínimo com o humor do horário para entrar na daylist/mix do período. */
+const MIN_MOOD_FIT = 0.5;
 
 const MIX_SIZE = 40;
 const MAX_PER_ARTIST = 3;
@@ -55,8 +61,9 @@ const weekKey = (d: Date) => {
     return `${t.getUTCFullYear()}-w${Math.ceil(((t.getTime() - yearStart.getTime()) / DAY_MS + 1) / 7)}`;
 };
 
-export const mixPeriodKey = (kind: MixKind, now: Date, daypart?: Daypart) => {
-    if (kind === 'daylist') return `${dayKey(now)}-${daypart || getDaypart(now)}`;
+export const mixPeriodKey = (kind: MixKind, now: Date) => {
+    // A daylist acompanha o humor em blocos de 4 horas (0h, 4h, 8h, 12h, 16h e 20h).
+    if (kind === 'daylist') return `${dayKey(now)}-h${Math.floor(now.getHours() / 4) * 4}`;
     if (kind === 'daypart' || kind === 'onRepeat') return dayKey(now);
     return weekKey(now);
 };
@@ -166,7 +173,7 @@ export class MixGenerator {
             generatedAt: this.nowMs,
             id,
             kind,
-            periodKey: mixPeriodKey(kind, this.now, extra.daypart),
+            periodKey: mixPeriodKey(kind, this.now),
             personalized,
             songIds: songs.map((s) => s.id),
             tags: [],
@@ -175,20 +182,59 @@ export class MixGenerator {
         };
     }
 
+    /**
+     * Daylist (bloco de 4 horas atual) ou mix de um período do dia. As músicas são escolhidas pelo
+     * encaixe com o humor do horário (ver mood.ts): o que você ouve naquelas horas, o que você
+     * pula, e, com pouco histórico, a energia esperada para a hora.
+     */
     daypartMix(daypart: Daypart, daylist: boolean): Mix {
-        const weekday = this.now.getDay();
-        const inDaypart = (e: ListenEntry) => getDaypart(e.playedAt) === daypart;
-        // A daylist também puxa o que você costuma ouvir neste dia da semana.
-        const weighted = daylist ? (e: ListenEntry) => inDaypart(e) || new Date(e.playedAt).getDay() === weekday : inDaypart;
-        const [genres, personalized] = this.tasteGenres(weighted);
+        const hours = daylist ? slotHours(this.now.getHours()) : daypartHours(daypart);
+        const hourProfile = moodProfile(this.entries, hours, this.nowMs, daylist ? this.now.getDay() : undefined);
+        const history = moodProfile(this.entries, null, this.nowMs);
+        const general = history.isEmpty ? profileFromPlayCounts(this.topPlayed, this.user.playCounts) : history;
+        const scorer = new MoodScorer(hourProfile, general, hours);
+
+        const known = (names: string[]) => names.filter((n) => this.genreIndex.has(normalizeText(n)));
+        const hourGenres = known(hourProfile.topGenres(8));
+        const [taste, personalized] = this.tasteGenres();
+        // Gêneros do horário; com pouco histórico nele, os do seu gosto que combinam com a hora.
+        const genres =
+            hourProfile.confidence >= 0.25 && hourGenres.length
+                ? hourGenres
+                : taste.slice(0, 8).sort((a, b) => energyFit([b], hours) - energyFit([a], hours));
         const top = daylist ? genres.slice(0, 3) : shuffled(genres.slice(0, 5)).slice(0, 3);
-        const favoriteIds = scoreSongs(this.entries, { filter: weighted, now: this.nowMs }).map((s) => s.entry.songId);
-        const favorites = this.resolve(this.sampleTop(favoriteIds, 18));
-        const discovered = this.interleave(top.map((g) => this.randomByGenre(g, 20)));
-        let songs = this.finalize(this.interleave([favorites, discovered]));
-        if (songs.length < 10) songs = this.finalize([...songs, ...shuffled(this.topPlayed)]);
-        if (songs.length < 10) songs = this.finalize([...songs, ...shuffled(this.library.songs).slice(0, 300)]);
-        return this.build(daylist ? 'daylist' : `daypart-${daypart}`, daylist ? 'daylist' : 'daypart', songs, personalized, { daypart, tags: top });
+
+        // Favoritas do horário: reproduções perto destas horas, as recentes valendo mais.
+        const favorite = new Map<string, number>();
+        for (const e of this.entries) {
+            if (!e.counted) continue;
+            const hour = new Date(e.playedAt).getHours();
+            const w = hours.reduce((sum, h) => sum + hourWeight(hour, h), 0) / hours.length;
+            if (w > 0) favorite.set(e.songId, (favorite.get(e.songId) || 0) + w * Math.pow(0.5, (this.nowMs - e.playedAt) / DAY_MS / 30));
+        }
+        const favoriteMax = Math.max(0, ...favorite.values()) || 1;
+
+        const pool = new Map<string, Song>();
+        const add = (songs: Song[]) => songs.forEach((s) => pool.set(s.id, s));
+        add(this.resolve([...favorite.entries()].sort((a, b) => b[1] - a[1]).slice(0, 80).map(([id]) => id)));
+        for (const g of new Set([...genres.slice(0, 6), ...top])) add(this.randomByGenre(g, 40));
+        add(this.topPlayed.slice(0, 150));
+        add(shuffled(this.library.songs).slice(0, 400));
+
+        const scored = [...pool.values()].map((s) => ({
+            score: scorer.fit(s) + 0.25 * ((favorite.get(s.id) || 0) / favoriteMax) + Math.random() * 0.12,
+            song: s,
+        }));
+        // Só o que combina com o horário; se sobrar pouco, completa com as mais próximas.
+        const good = scored.filter((x) => scorer.fit(x.song) >= MIN_MOOD_FIT);
+        const ranked = (good.length >= 20 ? good : scored).sort((a, b) => b.score - a.score).map((x) => x.song);
+        const songs = shuffled(this.finalize(ranked));
+
+        return this.build(daylist ? 'daylist' : `daypart-${daypart}`, daylist ? 'daylist' : 'daypart', songs, personalized, {
+            daypart,
+            moodMatch: scorer.matchPercent(songs),
+            tags: top,
+        });
     }
 
     onRepeat(): Mix {
@@ -247,8 +293,9 @@ export class MixGenerator {
     }
 
     isFresh(mix: Mix) {
-        const daypart = mix.kind === 'daylist' ? getDaypart(this.now) : mix.daypart;
-        if (mix.periodKey !== mixPeriodKey(mix.kind, this.now, daypart)) return false;
+        if (mix.periodKey !== mixPeriodKey(mix.kind, this.now)) return false;
+        // Mixes de horário feitas antes do cálculo de humor: refaz uma vez.
+        if ((mix.kind === 'daylist' || mix.kind === 'daypart') && mix.moodMatch === undefined && mix.songIds.length) return false;
         // A biblioteca mudou desde que a mix foi feita (gênero sumiu, músicas saíram): refaz.
         if (mix.kind === 'genre' && !this.library.genres.some((g) => g.key === normalizeText(mix.genre || ''))) return false;
         if (mix.songIds.length && mix.songIds.filter((id) => this.library.songsById.has(id)).length < mix.songIds.length * 0.8) return false;

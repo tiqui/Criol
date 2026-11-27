@@ -288,6 +288,14 @@ fun MixScreen(id: String) {
                             style = MaterialTheme.typography.bodySmall,
                             color = colors.foreground.copy(alpha = 0.7f),
                         )
+                        mix.moodMatch?.let { match ->
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                "Combina $match% com o que você costuma ouvir nesse horário",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = colors.foreground.copy(alpha = 0.85f),
+                            )
+                        }
                     }
                 },
             )
